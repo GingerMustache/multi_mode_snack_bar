@@ -4,6 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as services;
 import 'package:flutter_animate/flutter_animate.dart';
 
+/*
+need to add this part in app.dart
+
+     builder: (context, child) {
+        return Overlay(
+          initialEntries: [
+            OverlayEntry(
+              builder: (context) {
+                AnimatedSnackBar.initialize(context);
+                
+*/
+
 class AnimatedSnackBar {
   AnimatedSnackBar._();
 
