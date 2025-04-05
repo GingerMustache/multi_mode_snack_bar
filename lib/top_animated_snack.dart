@@ -5,7 +5,8 @@ import 'package:flutter/services.dart' as services;
 import 'package:flutter_animate/flutter_animate.dart';
 
 /*
-  add this part in MaterialApp builder
+  👉 Important: Add this to your MaterialApp builder
+     So the package can get your root context properly.
 
      builder: (context, child) {
         return Overlay(
@@ -13,31 +14,44 @@ import 'package:flutter_animate/flutter_animate.dart';
             OverlayEntry(
               builder: (context) {
                 AnimatedSnackBar.initialize(context);
+                return child!;
+              },
+            ),
+          ],
+        );
+      },
 */
 
 class AnimatedSnackBar {
-  AnimatedSnackBar._();
+  AnimatedSnackBar._(); // private constructor for singleton-like use
 
   static final List<OverlayEntry> _snackBars = [];
   static OverlayState? _rootOverlay;
   static late BuildContext _context;
 
+  /// Initialize the snackbar system.
+  ///
+  /// You only need to call this once in your app (see the builder comment).
   static void initialize(BuildContext context) {
     _context = context;
     _rootOverlay = Overlay.of(context);
   }
 
-  /// showing snack with the text message,
+  /// Show a snackbar with your message.
   ///
-  /// (optional) add [deepLinkTransition] as push screen,
-  ///
-  /// (optional) [underliningPart] - text part with underline decorator
-  static void show(String message,
-      {Function()? deepLinkTransition, String underliningPart = ''}) {
+  /// - [message]: The text message to display.
+  /// - [deepLinkTransition]: Optional function to execute on tap (e.g., navigate).
+  /// - [underliningPart]: Optional text that will be underlined.
+  static void show(
+    String message, {
+    Function()? deepLinkTransition,
+    String underliningPart = '',
+  }) {
     services.HapticFeedback.lightImpact();
+
     final overlay = _rootOverlay ?? Overlay.of(_context);
 
-    _removeAllSnacks();
+    _removeAllSnacks(); // Remove previous snackbars if any
 
     late OverlayEntry overlayEntry;
 
@@ -49,7 +63,7 @@ class AnimatedSnackBar {
         child: Dismissible(
           key: UniqueKey(),
           direction: DismissDirection.vertical,
-          onDismissed: (direction) {
+          onDismissed: (_) {
             _snackBars.remove(overlayEntry);
             overlayEntry.remove();
           },
@@ -63,9 +77,9 @@ class AnimatedSnackBar {
     );
 
     overlay.insert(overlayEntry);
-
     _snackBars.add(overlayEntry);
 
+    // Auto-dismiss after 5 seconds
     Future.delayed(const Duration(seconds: 5), () {
       if (_snackBars.contains(overlayEntry)) {
         _snackBars.remove(overlayEntry);
@@ -74,6 +88,7 @@ class AnimatedSnackBar {
     });
   }
 
+  // Remove all existing snackbars to prevent stacking
   static void _removeAllSnacks() {
     for (final snack in _snackBars) {
       snack.remove();
@@ -105,8 +120,9 @@ class AnimatedSnackBarContent extends StatelessWidget {
         child: TextButton(
           onPressed: deepLinkTransition,
           child: Text.rich(
-              textAlign: TextAlign.center,
-              TextSpan(children: [
+            textAlign: TextAlign.center,
+            TextSpan(
+              children: [
                 TextSpan(
                   text: '$message ',
                   style: const TextStyle(color: Colors.white),
@@ -117,18 +133,20 @@ class AnimatedSnackBarContent extends StatelessWidget {
                     color: Colors.white,
                     decoration: TextDecoration.underline,
                   ),
-                )
-              ])),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     )
         .animate()
-        .slideY(begin: -2, end: 0)
+        .slideY(begin: -2, end: 0) // Enter animation
         .then()
-        .slideY(begin: 0.15, end: 0, duration: 250.ms)
+        .slideY(begin: 0.15, end: 0, duration: 250.ms) // bounce effect
         .then()
-        .slideY(begin: 0, end: 0.15, duration: 200.ms)
-        .then(delay: 3.seconds)
-        .slideY(begin: 0, end: -2);
+        .slideY(begin: 0, end: 0.15, duration: 200.ms) // settle
+        .then(delay: 3.seconds) // visible time
+        .slideY(begin: 0, end: -2); // exit animation
   }
 }

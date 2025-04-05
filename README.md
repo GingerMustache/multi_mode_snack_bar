@@ -11,30 +11,81 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages).
 -->
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+# Top Animated Snack Bar
+
+A simple and elegant top snackbar for Flutter that animates beautifully and **does not require context every time** — just once during initialization.
+
+Perfect for global notifications, deep links, and lightweight snackbars at the top of the screen.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- ✅ Easy to use
+- ✅ No need to pass `context` every time
+- ✅ Beautiful entrance and exit animations
+- ✅ Supports tappable actions (deep links or navigation)
+- ✅ Optional underlined text inside the snackbar
+- ✅ Auto-dismiss after 5 seconds
+- ✅ Swipe up to dismiss manually
+- ✅ Haptic feedback on show
 
-## Getting started
+## Installation
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add the dependency in your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  top_animated_snack: <latest_version>
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Step 1: Initialize once in MaterialApp builder
+
 
 ```dart
-const like = 'sample';
+//Add this to your app's MaterialApp:
+builder: (context, child) {
+  return Overlay(
+    initialEntries: [
+      OverlayEntry(
+        builder: (context) {
+          AnimatedSnackBar.initialize(context);
+          return child!;
+        },
+      ),
+    ],
+  );
+}
 ```
+---
 
-## Additional information
+Step 2: Show a snackbar anywhere in your app
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
-# top_snackbar
+```dart
+AnimatedSnackBar.show('Your message here');
+```
+---
+
+Step 3: (Optional) Add action or underline
+
+```dart
+AnimatedSnackBar.show(
+  'Tap to open details',
+  underliningPart: 'View',
+  deepLinkTransition: () {
+    // Your navigation or action
+  },
+);
+```
+---
+
+## Customization
+- **underliningPart**: Adds underlined text at the end of your message.
+
+- **deepLinkTransition**: Add an optional callback that runs when the snackbar is tapped.
+
+## Demo
+Coming soon! 
+
+## License
+MIT License. Free to use and modify.
