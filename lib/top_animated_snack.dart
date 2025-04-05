@@ -5,7 +5,7 @@ import 'package:flutter/services.dart' as services;
 import 'package:flutter_animate/flutter_animate.dart';
 
 /*
-need to add this part in app.dart
+  add this part in MaterialApp builder
 
      builder: (context, child) {
         return Overlay(
@@ -13,7 +13,6 @@ need to add this part in app.dart
             OverlayEntry(
               builder: (context) {
                 AnimatedSnackBar.initialize(context);
-                
 */
 
 class AnimatedSnackBar {
