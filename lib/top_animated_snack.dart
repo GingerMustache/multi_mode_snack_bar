@@ -67,11 +67,10 @@ class AnimatedSnackBar {
             _snackBars.remove(overlayEntry);
             overlayEntry.remove();
           },
-          child: AnimatedSnackBarContent(
+          child: _AnimatedSnackBarContent(
+              content: WarningSnackBarConfig(
             message: message,
-            underliningPart: underliningPart,
-            deepLinkTransition: deepLinkTransition,
-          ),
+          )),
         ),
       ),
     );
@@ -97,16 +96,11 @@ class AnimatedSnackBar {
   }
 }
 
-class AnimatedSnackBarContent extends StatelessWidget {
-  final String message;
-  final String? underliningPart;
-  final Function()? deepLinkTransition;
+class _AnimatedSnackBarContent extends StatelessWidget {
+  final BaseSnackBarConfig content;
 
-  const AnimatedSnackBarContent({
-    required this.message,
-    super.key,
-    this.deepLinkTransition,
-    this.underliningPart,
+  const _AnimatedSnackBarContent({
+    required this.content,
   });
 
   @override
@@ -114,29 +108,26 @@ class AnimatedSnackBarContent extends StatelessWidget {
     return Material(
       borderRadius: BorderRadius.circular(5),
       elevation: 6.0,
-      color: Colors.black.withOpacity(0.96),
+      color: content.background ?? Colors.black.withOpacity(0.96),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: TextButton(
-          onPressed: deepLinkTransition,
+          onPressed: content.deepLinkTransition,
           child: Text.rich(
-            textAlign: TextAlign.center,
-            TextSpan(
-              children: [
+              textAlign: TextAlign.center,
+              TextSpan(children: [
                 TextSpan(
-                  text: '$message ',
+                  text: '${content.message} ',
                   style: const TextStyle(color: Colors.white),
                 ),
                 TextSpan(
-                  text: underliningPart,
+                  text: content.underliningPart,
                   style: const TextStyle(
                     color: Colors.white,
                     decoration: TextDecoration.underline,
                   ),
-                ),
-              ],
-            ),
-          ),
+                )
+              ])),
         ),
       ),
     )
@@ -149,4 +140,52 @@ class AnimatedSnackBarContent extends StatelessWidget {
         .then(delay: 3.seconds) // visible time
         .slideY(begin: 0, end: -2); // exit animation
   }
+}
+
+// Abstract base class
+abstract class BaseSnackBarConfig {
+  final String message;
+  final String? underliningPart;
+  final Function()? deepLinkTransition;
+  final Color? background;
+
+  const BaseSnackBarConfig({
+    required this.message,
+    this.underliningPart,
+    this.deepLinkTransition,
+    this.background,
+  });
+}
+
+// Error SnackBar
+class ErrorSnackBarConfig extends BaseSnackBarConfig {
+  ErrorSnackBarConfig({
+    required super.message,
+    super.underliningPart,
+    super.deepLinkTransition,
+  }) : super(
+          background: Colors.red.withOpacity(0.96),
+        );
+}
+
+// Warning SnackBar
+class WarningSnackBarConfig extends BaseSnackBarConfig {
+  WarningSnackBarConfig({
+    required super.message,
+    super.underliningPart,
+    super.deepLinkTransition,
+  }) : super(
+          background: Colors.yellow.withOpacity(0.96),
+        );
+}
+
+// Success SnackBar
+class SuccessSnackBarConfig extends BaseSnackBarConfig {
+  SuccessSnackBarConfig({
+    required super.message,
+    super.underliningPart,
+    super.deepLinkTransition,
+  }) : super(
+          background: Colors.green.withOpacity(0.96),
+        );
 }
