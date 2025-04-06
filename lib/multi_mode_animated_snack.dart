@@ -4,26 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as services;
 import 'package:flutter_animate/flutter_animate.dart';
 
-/// 📌 Usage Note:
-/// To make the snack bar work globally,
-/// You need to wrap your app with an [Overlay] in your MaterialApp builder:
-///
-/// builder: (context, child) {
-///   return Overlay(
-///     initialEntries: [
-///       OverlayEntry(
-///         builder: (context) {
-///           AnimatedSnackBar.initialize(context);
-///           return child!;
-///         },
-///       ),
-///     ],
-///   );
-/// },
-///
-
 /// Enum for predefined config modes to customize the snack bar appearance
 enum ConfigMode { error, warning, success, common }
+
+/// Enum for the appearance mode of the snack bar
+enum AppearanceMode { top, bottom }
 
 /// Main class to control and show animated snack bars
 class AnimatedSnackBar {
@@ -53,9 +38,11 @@ class AnimatedSnackBar {
     BaseSnackBarConfig? warning,
     BaseSnackBarConfig? success,
     BaseSnackBarConfig? common,
+    AppearanceMode? appearanceMode,
   }) {
     _context = context;
     _rootOverlay = Overlay.of(context);
+    _appearanceMode = appearanceMode ?? _appearanceMode;
 
     _setConfigModes(
       error: error,
@@ -83,6 +70,9 @@ class AnimatedSnackBar {
   // Default mode if none provided
   static const ConfigMode _configMode = ConfigMode.common;
 
+// Default appearance mode if none provided
+  static AppearanceMode _appearanceMode = AppearanceMode.top;
+
   /// Show an animated snack bar
   ///
   /// [message] — text to display
@@ -96,10 +86,11 @@ class AnimatedSnackBar {
   /// [deepLinkTransition] — (optional) optional function triggered on snack bar tap
   ///
   /// [underliningPart] — (optional) optional underlined text part
-  static void show({
-    String? message,
+  static void show(
+    String? message, {
     Color? backgroundColor,
     Color? textColor,
+    Color? underliningPartColor,
     ConfigMode? configMode,
     BaseSnackBarConfig? content,
     Function()? deepLinkTransition,
@@ -118,7 +109,12 @@ class AnimatedSnackBar {
 
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: MediaQuery.of(_context).padding.top + 5,
+        top: _appearanceMode == AppearanceMode.top
+            ? MediaQuery.of(_context).padding.top + 5
+            : null,
+        bottom: _appearanceMode == AppearanceMode.bottom
+            ? MediaQuery.of(_context).padding.bottom - 10
+            : null,
         left: 16.0,
         right: 16.0,
         child: Dismissible(
@@ -129,14 +125,16 @@ class AnimatedSnackBar {
             overlayEntry.remove();
           },
           child: _AnimatedSnackBarContent(
+            underliningPartColor: underliningPartColor,
+            appearanceMode: _appearanceMode,
             message: message ?? helloAnimatedSnack,
             underliningPart: underliningPart,
             textColor: textColor,
             backgroundColor: backgroundColor,
-            content: content ??
+            config: content ??
                 switch (configMode ?? _configMode) {
                   ConfigMode.common => _configModeMap[configMode] ??
-                      _CommonSnackBarContent(
+                      _CommonSnackBarConfig(
                         backgroundColor: backgroundColor,
                         textColor: textColor,
                         message: message ?? helloAnimatedSnack,
@@ -144,19 +142,19 @@ class AnimatedSnackBar {
                         deepLinkTransition: deepLinkTransition,
                       ),
                   ConfigMode.success => _configModeMap[configMode] ??
-                      _SuccessSnackBarContent(
+                      _SuccessSnackBarConfig(
                         message: message ?? helloAnimatedSnack,
                         underliningPart: underliningPart,
                         deepLinkTransition: deepLinkTransition,
                       ),
                   ConfigMode.warning => _configModeMap[configMode] ??
-                      _WarningSnackBarContent(
+                      _WarningSnackBarConfig(
                         message: message ?? helloAnimatedSnack,
                         underliningPart: underliningPart,
                         deepLinkTransition: deepLinkTransition,
                       ),
                   ConfigMode.error => _configModeMap[configMode] ??
-                      _ErrorSnackBarContent(
+                      _ErrorSnackBarConfig(
                         message: message ?? helloAnimatedSnack,
                         underliningPart: underliningPart,
                         deepLinkTransition: deepLinkTransition,
@@ -193,45 +191,74 @@ class AnimatedSnackBar {
 
 /// Internal widget to render animated snack bar content
 class _AnimatedSnackBarContent extends StatelessWidget {
-  final BaseSnackBarConfig content;
+  final BaseSnackBarConfig config;
   final String message;
   final String underliningPart;
   final Color? textColor;
+  final Color? underliningPartColor;
   final Color? backgroundColor;
+  final AppearanceMode appearanceMode;
 
   const _AnimatedSnackBarContent({
-    required this.content,
+    required this.config,
     required this.message,
     required this.underliningPart,
     required this.textColor,
+    required this.underliningPartColor,
     required this.backgroundColor,
+    required this.appearanceMode,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return appearanceMode == AppearanceMode.bottom
+        ? content()
+            .animate()
+            .slideY(begin: 3, end: -0.7)
+            .then()
+            .slideY(begin: 0, end: 0.15, duration: 250.ms)
+            .then()
+            .slideY(begin: 0.15, end: 0, duration: 200.ms)
+            .then(delay: 3.seconds)
+            .slideY(begin: -0.7, end: 3)
+        : content()
+            .animate()
+            .slideY(begin: -2, end: 0)
+            .then()
+            .slideY(begin: 0.15, end: 0, duration: 250.ms)
+            .then()
+            .slideY(begin: 0, end: 0.15, duration: 200.ms)
+            .then(delay: 3.seconds)
+            .slideY(begin: 0, end: -2);
+  }
+
+  SizedBox content() {
+    return SizedBox(
+        child: Material(
       borderRadius: BorderRadius.circular(5),
       elevation: 6.0,
       color: backgroundColor ??
-          content.backgroundColor ??
+          config.backgroundColor ??
           Colors.black.withOpacity(0.96),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: TextButton(
-          onPressed: content.deepLinkTransition,
+          onPressed: config.deepLinkTransition,
           child: Text.rich(
             textAlign: TextAlign.center,
             TextSpan(
               children: [
                 TextSpan(
-                  text: '${content.message ?? message} ',
+                  text: '${config.message ?? message} ',
                   style: TextStyle(
-                      color: textColor ?? content.textColor ?? Colors.white),
+                      color: textColor ?? config.textColor ?? Colors.white),
                 ),
                 TextSpan(
-                  text: content.underliningPart ?? underliningPart,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  text: config.underliningPart ?? underliningPart,
+                  style: TextStyle(
+                    color: config.underliningPartColor ??
+                        underliningPartColor ??
+                        Colors.white,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -240,16 +267,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
           ),
         ),
       ),
-    )
-        // Apply animation effects to the snack bar
-        .animate()
-        .slideY(begin: -2, end: 0) // Slide in from top
-        .then()
-        .slideY(begin: 0.15, end: 0, duration: 250.ms) // Small bounce
-        .then()
-        .slideY(begin: 0, end: 0.15, duration: 200.ms) // Settle position
-        .then(delay: 3.seconds) // Stay visible
-        .slideY(begin: 0, end: -2); // Slide out and disappear
+    ));
   }
 }
 
@@ -260,6 +278,7 @@ abstract class BaseSnackBarConfig {
   final Function()? deepLinkTransition;
   final Color? backgroundColor;
   final Color? textColor;
+  final Color? underliningPartColor;
 
   const BaseSnackBarConfig({
     required this.message,
@@ -267,12 +286,13 @@ abstract class BaseSnackBarConfig {
     this.deepLinkTransition,
     this.backgroundColor,
     this.textColor,
+    this.underliningPartColor,
   });
 }
 
 // Default error SnackBar
-class _ErrorSnackBarContent extends BaseSnackBarConfig {
-  _ErrorSnackBarContent({
+class _ErrorSnackBarConfig extends BaseSnackBarConfig {
+  _ErrorSnackBarConfig({
     required super.message,
     super.underliningPart,
     super.deepLinkTransition,
@@ -283,8 +303,8 @@ class _ErrorSnackBarContent extends BaseSnackBarConfig {
 }
 
 // Default warning SnackBar
-class _WarningSnackBarContent extends BaseSnackBarConfig {
-  _WarningSnackBarContent({
+class _WarningSnackBarConfig extends BaseSnackBarConfig {
+  _WarningSnackBarConfig({
     required super.message,
     super.underliningPart,
     super.deepLinkTransition,
@@ -294,8 +314,8 @@ class _WarningSnackBarContent extends BaseSnackBarConfig {
 }
 
 // Default success SnackBar
-class _SuccessSnackBarContent extends BaseSnackBarConfig {
-  _SuccessSnackBarContent({
+class _SuccessSnackBarConfig extends BaseSnackBarConfig {
+  _SuccessSnackBarConfig({
     required super.message,
     super.underliningPart,
     super.deepLinkTransition,
@@ -305,8 +325,8 @@ class _SuccessSnackBarContent extends BaseSnackBarConfig {
 }
 
 // Default common SnackBar
-class _CommonSnackBarContent extends BaseSnackBarConfig {
-  _CommonSnackBarContent({
+class _CommonSnackBarConfig extends BaseSnackBarConfig {
+  _CommonSnackBarConfig({
     required super.message,
     super.underliningPart,
     super.deepLinkTransition,

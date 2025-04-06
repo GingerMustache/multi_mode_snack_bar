@@ -20,10 +20,12 @@ Perfect for global notifications, deep links, and lightweight snackbars.
 
 - ✅ Easy to use
 - ✅ No need to pass `context` every time
+- ✅ Customizable appearance (top/bottom)
 - ✅ Beautiful entrance and exit animations
 - ✅ Supports tappable actions (deep links or navigation)
 - ✅ Optional underlined text inside the snackbar
 - ✅ Auto-dismiss after 5 seconds
+- ✅ Handle-dismiss
 - ✅ Swipe up to dismiss manually
 - ✅ Haptic feedback on show
 - ✅ Custom configuration for different snack types (error, warning, etc.)
@@ -50,7 +52,10 @@ builder: (context, child) {
     initialEntries: [
       OverlayEntry(
         builder: (context) {
-          AnimatedSnackBar.initialize(context);
+          AnimatedSnackBar.initialize(
+            context,
+            appearanceMode: AppearanceMode.bottom, // AppearanceMode.top
+            );
           return child!;
         },
       ),
@@ -76,6 +81,7 @@ AnimatedSnackBar.show(
   textColor: Colors.amber,
   backgroundColor: Colors.black,
   underliningPart: 'click here',
+  underliningPartColor: Colors.teal
   deepLinkTransition: () {
     // Handle tap, e.g., navigate
   },
@@ -92,6 +98,7 @@ If you want to fully customize different snack types (error, success, etc.), add
 ```dart
 AnimatedSnackBar.initialize(
   context,
+  appearanceMode: AppearanceMode.top, // Custom appearance mode
   common: CommonSnack(),
   error: ErrorSnack(),
   success: SuccessSnack(),
@@ -112,6 +119,7 @@ class ErrorSnack extends BaseSnackBarConfig {
           backgroundColor: Colors.red.withOpacity(0.96),
           textColor: Colors.black,
           underliningPart: 'click here',
+          underliningPartColor: Colors.teal
         );
 }
 
