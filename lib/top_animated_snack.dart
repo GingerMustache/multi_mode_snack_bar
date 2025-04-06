@@ -4,54 +4,114 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as services;
 import 'package:flutter_animate/flutter_animate.dart';
 
-/*
-  👉 Important: Add this to your MaterialApp builder
-     So the package can get your root context properly.
+/// 📌 Usage Note:
+/// To make the snack bar work globally,
+/// You need to wrap your app with an [Overlay] in your MaterialApp builder:
+///
+/// builder: (context, child) {
+///   return Overlay(
+///     initialEntries: [
+///       OverlayEntry(
+///         builder: (context) {
+///           AnimatedSnackBar.initialize(context);
+///           return child!;
+///         },
+///       ),
+///     ],
+///   );
+/// },
+///
 
-     builder: (context, child) {
-        return Overlay(
-          initialEntries: [
-            OverlayEntry(
-              builder: (context) {
-                AnimatedSnackBar.initialize(context);
-                return child!;
-              },
-            ),
-          ],
-        );
-      },
-*/
+/// Enum for predefined config modes to customize the snack bar appearance
+enum ConfigMode { error, warning, success, common }
 
+/// Main class to control and show animated snack bars
 class AnimatedSnackBar {
-  AnimatedSnackBar._(); // private constructor for singleton-like use
+  AnimatedSnackBar._(); // Private constructor for singleton pattern
 
+  // List of currently displayed snack bars (to manage multiple instances)
   static final List<OverlayEntry> _snackBars = [];
+
+  // Root overlay state to insert overlay entries
   static OverlayState? _rootOverlay;
+
+  // Context to access media queries and theme
   static late BuildContext _context;
 
-  /// Initialize the snackbar system.
+  // Map to store custom configurations for each mode
+  static final Map<ConfigMode, BaseSnackBarConfig?> _configModeMap = {};
+
+  // Default fallback message
+  static const String helloAnimatedSnack = "hey there, animated snack bar";
+
+  /// Initialization method — must be called to set up the snack bar system
   ///
-  /// You only need to call this once in your app (see the builder comment).
-  static void initialize(BuildContext context) {
+  /// Optionally, you can provide custom configurations for each mode.
+  static void initialize(
+    BuildContext context, {
+    BaseSnackBarConfig? error,
+    BaseSnackBarConfig? warning,
+    BaseSnackBarConfig? success,
+    BaseSnackBarConfig? common,
+  }) {
     _context = context;
     _rootOverlay = Overlay.of(context);
+
+    _setConfigModes(
+      error: error,
+      warning: warning,
+      success: success,
+      common: common,
+    );
   }
 
-  /// Show a snackbar with your message.
+  /// Private method to set custom configurations for different modes
+  static _setConfigModes({
+    BaseSnackBarConfig? common,
+    BaseSnackBarConfig? error,
+    BaseSnackBarConfig? warning,
+    BaseSnackBarConfig? success,
+  }) {
+    _configModeMap.addAll({
+      ConfigMode.common: common,
+      ConfigMode.success: success,
+      ConfigMode.error: error,
+      ConfigMode.warning: warning,
+    });
+  }
+
+  // Default mode if none provided
+  static const ConfigMode _configMode = ConfigMode.common;
+
+  /// Show an animated snack bar
   ///
-  /// - [message]: The text message to display.
-  /// - [deepLinkTransition]: Optional function to execute on tap (e.g., navigate).
-  /// - [underliningPart]: Optional text that will be underlined.
-  static void show(
-    String message, {
+  /// [message] — text to display
+  ///
+  /// [backgroundColor] — (optional) background color
+  ///
+  /// [configMode] — (optional) pre-defined mode (error, warning, success, common)
+  ///
+  /// [content] —  (optional) full custom content config
+  ///
+  /// [deepLinkTransition] — (optional) optional function triggered on snack bar tap
+  ///
+  /// [underliningPart] — (optional) optional underlined text part
+  static void show({
+    String? message,
+    Color? backgroundColor,
+    ConfigMode? configMode,
+    BaseSnackBarConfig? content,
     Function()? deepLinkTransition,
     String underliningPart = '',
   }) {
+    // Trigger light haptic feedback when snack bar appears
     services.HapticFeedback.lightImpact();
 
+    // Get current overlay state
     final overlay = _rootOverlay ?? Overlay.of(_context);
 
-    _removeAllSnacks(); // Remove previous snackbars if any
+    // Remove any existing snack bars before showing new one
+    _removeAllSnacks();
 
     late OverlayEntry overlayEntry;
 
@@ -63,22 +123,51 @@ class AnimatedSnackBar {
         child: Dismissible(
           key: UniqueKey(),
           direction: DismissDirection.vertical,
-          onDismissed: (_) {
+          onDismissed: (direction) {
             _snackBars.remove(overlayEntry);
             overlayEntry.remove();
           },
           child: _AnimatedSnackBarContent(
-              content: WarningSnackBarConfig(
-            message: message,
-          )),
+            content: content ??
+                switch (configMode ?? _configMode) {
+                  ConfigMode.common => _configModeMap[configMode] ??
+                      _CommonSnackBarContent(
+                        background: backgroundColor,
+                        message: message ?? helloAnimatedSnack,
+                        underliningPart: underliningPart,
+                        deepLinkTransition: deepLinkTransition,
+                      ),
+                  ConfigMode.success => _configModeMap[configMode] ??
+                      _SuccessSnackBarContent(
+                        message: message ?? helloAnimatedSnack,
+                        underliningPart: underliningPart,
+                        deepLinkTransition: deepLinkTransition,
+                      ),
+                  ConfigMode.warning => _configModeMap[configMode] ??
+                      _WarningSnackBarContent(
+                        message: message ?? helloAnimatedSnack,
+                        underliningPart: underliningPart,
+                        deepLinkTransition: deepLinkTransition,
+                      ),
+                  ConfigMode.error => _configModeMap[configMode] ??
+                      _ErrorSnackBarContent(
+                        message: message ?? helloAnimatedSnack,
+                        underliningPart: underliningPart,
+                        deepLinkTransition: deepLinkTransition,
+                      ),
+                },
+          ),
         ),
       ),
     );
 
+    // Insert snack bar into overlay
     overlay.insert(overlayEntry);
+
+    // Keep track of currently displayed snack bars
     _snackBars.add(overlayEntry);
 
-    // Auto-dismiss after 5 seconds
+    // Auto remove after 5 seconds if not dismissed manually
     Future.delayed(const Duration(seconds: 5), () {
       if (_snackBars.contains(overlayEntry)) {
         _snackBars.remove(overlayEntry);
@@ -87,7 +176,7 @@ class AnimatedSnackBar {
     });
   }
 
-  // Remove all existing snackbars to prevent stacking
+  /// Private method to remove all currently displayed snack bars
   static void _removeAllSnacks() {
     for (final snack in _snackBars) {
       snack.remove();
@@ -96,6 +185,7 @@ class AnimatedSnackBar {
   }
 }
 
+/// Internal widget to render animated snack bar content
 class _AnimatedSnackBarContent extends StatelessWidget {
   final BaseSnackBarConfig content;
 
@@ -114,8 +204,9 @@ class _AnimatedSnackBarContent extends StatelessWidget {
         child: TextButton(
           onPressed: content.deepLinkTransition,
           child: Text.rich(
-              textAlign: TextAlign.center,
-              TextSpan(children: [
+            textAlign: TextAlign.center,
+            TextSpan(
+              children: [
                 TextSpan(
                   text: '${content.message} ',
                   style: const TextStyle(color: Colors.white),
@@ -126,19 +217,22 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                     color: Colors.white,
                     decoration: TextDecoration.underline,
                   ),
-                )
-              ])),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     )
+        // Apply animation effects to the snack bar
         .animate()
-        .slideY(begin: -2, end: 0) // Enter animation
+        .slideY(begin: -2, end: 0) // Slide in from top
         .then()
-        .slideY(begin: 0.15, end: 0, duration: 250.ms) // bounce effect
+        .slideY(begin: 0.15, end: 0, duration: 250.ms) // Small bounce
         .then()
-        .slideY(begin: 0, end: 0.15, duration: 200.ms) // settle
-        .then(delay: 3.seconds) // visible time
-        .slideY(begin: 0, end: -2); // exit animation
+        .slideY(begin: 0, end: 0.15, duration: 200.ms) // Settle position
+        .then(delay: 3.seconds) // Stay visible
+        .slideY(begin: 0, end: -2); // Slide out and disappear
   }
 }
 
@@ -157,9 +251,9 @@ abstract class BaseSnackBarConfig {
   });
 }
 
-// Error SnackBar
-class ErrorSnackBarConfig extends BaseSnackBarConfig {
-  ErrorSnackBarConfig({
+// Default error SnackBar
+class _ErrorSnackBarContent extends BaseSnackBarConfig {
+  _ErrorSnackBarContent({
     required super.message,
     super.underliningPart,
     super.deepLinkTransition,
@@ -168,9 +262,9 @@ class ErrorSnackBarConfig extends BaseSnackBarConfig {
         );
 }
 
-// Warning SnackBar
-class WarningSnackBarConfig extends BaseSnackBarConfig {
-  WarningSnackBarConfig({
+// Default warning SnackBar
+class _WarningSnackBarContent extends BaseSnackBarConfig {
+  _WarningSnackBarContent({
     required super.message,
     super.underliningPart,
     super.deepLinkTransition,
@@ -179,13 +273,23 @@ class WarningSnackBarConfig extends BaseSnackBarConfig {
         );
 }
 
-// Success SnackBar
-class SuccessSnackBarConfig extends BaseSnackBarConfig {
-  SuccessSnackBarConfig({
+// Default success SnackBar
+class _SuccessSnackBarContent extends BaseSnackBarConfig {
+  _SuccessSnackBarContent({
     required super.message,
     super.underliningPart,
     super.deepLinkTransition,
   }) : super(
           background: Colors.green.withOpacity(0.96),
         );
+}
+
+// Default common SnackBar
+class _CommonSnackBarContent extends BaseSnackBarConfig {
+  _CommonSnackBarContent({
+    required super.message,
+    super.underliningPart,
+    super.deepLinkTransition,
+    super.background,
+  });
 }
