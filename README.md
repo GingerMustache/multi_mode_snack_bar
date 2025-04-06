@@ -11,11 +11,10 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages).
 -->
 
-# Top Animated Snack Bar
+# Multi-mode Animated Snack
+A simple and elegant top snackbar for Flutter that animates beautifully and does not require context every time — just once during initialization.
 
-A simple and elegant top snackbar for Flutter that animates beautifully and **does not require context every time** — just once during initialization.
-
-Perfect for global notifications, deep links, and lightweight snackbars at the top of the screen.
+Perfect for global notifications, deep links, and lightweight snackbars.
 
 ## Features
 
@@ -27,6 +26,8 @@ Perfect for global notifications, deep links, and lightweight snackbars at the t
 - ✅ Auto-dismiss after 5 seconds
 - ✅ Swipe up to dismiss manually
 - ✅ Haptic feedback on show
+- ✅ Custom configuration for different snack types (error, warning, etc.)
+
 
 ## Installation
 
@@ -37,10 +38,10 @@ dependencies:
   top_animated_snack: <latest_version>
 ```
 
-## Usage
+<div style="padding: 5px;"></div>
 
-Step 1: Initialize once in MaterialApp builder
-
+## Quick Start 🚀
+#### Step 1: Initialize once in your MaterialApp builder
 
 ```dart
 //Add this to your app's MaterialApp:
@@ -57,27 +58,87 @@ builder: (context, child) {
   );
 }
 ```
----
 
-Step 2: Show a snackbar anywhere in your app
+<div style="padding: 5px;"></div>
 
+#### Step 2: Show snackbars anywhere in your app 
 ```dart
 AnimatedSnackBar.show('Your message here');
 ```
----
 
-Step 3: (Optional) Add action or underline
+<div style="padding: 5px;"></div>
 
+#### Step 3: (Optional) Add settings per message
 ```dart
 AnimatedSnackBar.show(
-  'Tap to open details',
-  underliningPart: 'View',
+  message: 'Test snackbar',
+  configMode: ConfigMode.error,
+  textColor: Colors.amber,
+  backgroundColor: Colors.black,
+  underliningPart: 'click here',
   deepLinkTransition: () {
-    // Your navigation or action
+    // Handle tap, e.g., navigate
   },
 );
 ```
----
+<div style="padding: 5px;"></div>
+
+## Advanced Usage ⚙️ (Optional)
+- Note: you need to perform a hot restart for the changes to take effect.
+
+Add custom configurations during initialization
+
+If you want to fully customize different snack types (error, success, etc.), add them during initialization:
+```dart
+AnimatedSnackBar.initialize(
+  context,
+  common: CommonSnack(),
+  error: ErrorSnack(),
+  success: SuccessSnack(),
+  warning: WarningSnack(),
+);
+```
+<div style="padding: 5px;"></div>
+
+Define your custom configurations:
+```dart
+class ErrorSnack extends BaseSnackBarConfig {
+  ErrorSnack({
+    // these parameters should be provided each time you show the snackbar
+    super.message,
+    super.deepLinkTransition,
+  }) : super(
+  // default settings for the error snack
+          backgroundColor: Colors.red.withOpacity(0.96),
+          textColor: Colors.black,
+          underliningPart: 'click here',
+        );
+}
+
+class WarningSnack extends BaseSnackBarConfig {
+  WarningSnack({
+    // these can be overridden at show-time
+    super.message,
+    super.underliningPart,
+    super.deepLinkTransition,
+    super.textColor,
+  }) : super(
+    // fixed background color for warnings
+    backgroundColor: Colors.yellow.withOpacity(0.96),
+  );
+}
+
+// Repeat for others.
+```
+<div style="padding: 5px;"></div>
+Use it like this:
+
+```dart
+AnimatedSnackBar.show(
+  message: 'Something went wrong!',
+  configMode: ConfigMode.error,
+);
+```
 
 ## Customization
 - **underliningPart**: Adds underlined text at the end of your message.
