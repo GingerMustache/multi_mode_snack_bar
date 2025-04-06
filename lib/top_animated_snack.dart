@@ -1,4 +1,4 @@
-library top_animated_snack;
+library multi_mode_animated_snack;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as services;
