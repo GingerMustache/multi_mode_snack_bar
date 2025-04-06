@@ -11,12 +11,22 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages).
 -->
 
+# Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start 🚀](#quick-start-🚀)
+- [Advanced Usage ⚙️ (Optional)](#advanced-usage-⚙️-optional)
+- [Contact](#contact)
+
+# Preview
+commig soon
+
 # Multi-mode Animated Snack
 A simple and elegant top snackbar for Flutter that animates beautifully and does not require context every time — just once during initialization.
 
 Perfect for global notifications, deep links, and lightweight snackbars.
 
-## Features
+## Features 
 
 - ✅ Easy to use
 - ✅ No need to pass `context` every time
@@ -153,8 +163,9 @@ AnimatedSnackBar.show(
 
 - **deepLinkTransition**: Add an optional callback that runs when the snackbar is tapped.
 
-## Demo
-Coming soon! 
 
 ## License
 MIT License. Free to use and modify.
+
+## Contact 
+If you want to report a bug, request a feature or improve something, feel free to file an issue in the [GitHub repository](https://github.com/GingerMustache).
