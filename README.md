@@ -47,7 +47,7 @@ Add the dependency in your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  top_animated_snack: <latest_version>
+  multi_mode_animated_snack: <latest_version>
 ```
 
 <div style="padding: 5px;"></div>

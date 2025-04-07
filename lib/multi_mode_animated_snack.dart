@@ -111,10 +111,10 @@ class AnimatedSnackBar {
       builder: (context) => Positioned(
         top: _appearanceMode == AppearanceMode.top
             ? MediaQuery.of(_context).padding.top + 5
-            : null,
-        bottom: _appearanceMode == AppearanceMode.bottom
-            ? MediaQuery.of(_context).padding.bottom - 10
-            : null,
+            : MediaQuery.sizeOf(_context).height - 100,
+        // bottom: _appearanceMode == AppearanceMode.bottom
+        //     ? MediaQuery.sizeOf(_context).height - 20
+        //     : null,
         left: 16.0,
         right: 16.0,
         child: Dismissible(
@@ -211,30 +211,9 @@ class _AnimatedSnackBarContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return appearanceMode == AppearanceMode.bottom
-        ? content()
-            .animate()
-            .slideY(begin: 3, end: -0.7)
-            .then()
-            .slideY(begin: 0, end: 0.15, duration: 250.ms)
-            .then()
-            .slideY(begin: 0.15, end: 0, duration: 200.ms)
-            .then(delay: 3.seconds)
-            .slideY(begin: -0.7, end: 3)
-        : content()
-            .animate()
-            .slideY(begin: -2, end: 0)
-            .then()
-            .slideY(begin: 0.15, end: 0, duration: 250.ms)
-            .then()
-            .slideY(begin: 0, end: 0.15, duration: 200.ms)
-            .then(delay: 3.seconds)
-            .slideY(begin: 0, end: -2);
-  }
+    final isMinus = appearanceMode == AppearanceMode.top;
 
-  SizedBox content() {
-    return SizedBox(
-        child: Material(
+    return Material(
       borderRadius: BorderRadius.circular(5),
       elevation: 6.0,
       color: backgroundColor ??
@@ -267,7 +246,15 @@ class _AnimatedSnackBarContent extends StatelessWidget {
           ),
         ),
       ),
-    ));
+    )
+        .animate()
+        .slideY(begin: isMinus ? -2 : 2, end: 0)
+        .then()
+        .slideY(begin: 0.15, end: 0, duration: 250.ms)
+        .then()
+        .slideY(begin: 0, end: 0.15, duration: 200.ms)
+        .then(delay: 3.seconds)
+        .slideY(begin: 0, end: isMinus ? -2 : 2);
   }
 }
 
