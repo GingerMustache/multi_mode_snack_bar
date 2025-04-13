@@ -4,7 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as services;
 import 'package:flutter_animate/flutter_animate.dart';
 
+/// A wrapper widget that provides an [Overlay] for displaying snack bars.
 ///
+/// Place this at the root of your app to initialize the animated snack bar system.
+///
+/// [child] — the main content of the app.
+///
+/// [sneckInitializer] — a callback that provides the [BuildContext] required for snack initialization.
 final class OverlayWrapper extends StatelessWidget {
   const OverlayWrapper({
     super.key,
@@ -28,13 +34,16 @@ final class OverlayWrapper extends StatelessWidget {
   }
 }
 
-/// Enum for predefined config modes to customize the snack bar appearance
+/// Predefined configuration modes for customizing the snack bar appearance.
 enum ConfigMode { error, warning, success, common }
 
-/// Enum for the appearance mode of the snack bar
+/// Defines the position where the snack bar will appear on the screen.
 enum AppearanceMode { top, bottom }
 
-/// Main class to control and show animated snack bars
+/// Core class for displaying animated snack bars.
+///
+/// Use [initialize] before displaying snack bars to set up configurations and appearance.
+/// Then, call [show] to display a snack bar.
 class AnimatedSnackBar {
   AnimatedSnackBar._(); // Private constructor for singleton pattern
 
@@ -53,20 +62,30 @@ class AnimatedSnackBar {
   // Default fallback message
   static const String helloAnimatedSnack = "hey there, animated snack bar";
 
-  /// Initialization method — must be called to set up the snack bar system
+  /// Initialize the snack bar system.
   ///
-  /// Optionally, you can provide custom configurations for each mode.
-  static void initialize(
-    BuildContext context, {
-    BaseSnackBarConfig? error,
-    BaseSnackBarConfig? warning,
-    BaseSnackBarConfig? success,
-    BaseSnackBarConfig? common,
-    AppearanceMode? appearanceMode,
-  }) {
+  /// Must be called before displaying any snack bars.
+  ///
+  /// You can optionally provide custom configurations for each mode.
+  ///
+  /// [appearanceMode] — position of the snack bar on screen, defaults to [AppearanceMode.top].
+  ///
+  /// [snackBottomPadding] — custom bottom padding (only used when [AppearanceMode.bottom]).
+  ///
+  /// [snackTopPadding] — custom top padding (only used when [AppearanceMode.top]).
+  static void initialize(BuildContext context,
+      {BaseSnackBarConfig? error,
+      BaseSnackBarConfig? warning,
+      BaseSnackBarConfig? success,
+      BaseSnackBarConfig? common,
+      AppearanceMode? appearanceMode,
+      double? snackBottomPadding,
+      double? snackTopPadding}) {
     _context = context;
     _rootOverlay = Overlay.of(context);
     _appearanceMode = appearanceMode ?? _appearanceMode;
+    _snackBottomPadding = snackBottomPadding ?? _snackBottomPadding;
+    _snackTopPadding = snackTopPadding ?? _snackTopPadding;
 
     _setConfigModes(
       error: error,
@@ -97,26 +116,35 @@ class AnimatedSnackBar {
 // Default appearance mode if none provided
   static AppearanceMode _appearanceMode = AppearanceMode.top;
 
-  /// Show an animated snack bar
+  /// Bottom padding value.
+  static double _snackBottomPadding = 100;
+
+  /// Top padding value.
+  static double _snackTopPadding = 5;
+
+  /// Display an animated snack bar.
   ///
-  /// [message] — text to display
+  /// [message] — text to display inside the snack bar.
   ///
-  /// [backgroundColor] — (optional) background color
+  /// [backgroundColor] — optional background color override.
   ///
-  /// [configMode] — (optional) pre-defined mode (error, warning, success, common)
+  /// [content] — optional custom widget to display instead of text.
   ///
-  /// [config] —  (optional) full custom content config
+  /// [contentPadding] — optional padding around the content (default: 0). Must be >= 0.
   ///
-  /// [deepLinkTransition] — (optional) optional function triggered on snack bar tap
+  /// [textColor] — optional text color override.
   ///
-  /// [underliningPart] — (optional) optional underlined text part
+  /// [textStyle] — optional text style override.
   ///
-  /// [textColor] — (optional) text color
+  /// [underliningPartColor] — optional color for underlined text part.
   ///
-  /// [underliningPartColor] — (optional) underlined text color
+  /// [configMode] — optional predefined configuration mode (error, warning, success, common).
   ///
-  /// [contentPadding] — (optional) padding around the content, default is 0,
-  /// must be >= 0
+  /// [config] — optional full custom configuration.
+  ///
+  /// [deepLinkTransition] — optional callback triggered when the snack bar is tapped.
+  ///
+  /// [underliningPart] — optional part of the text to underline.
   static void show({
     String? message,
     Color? backgroundColor,
@@ -144,8 +172,8 @@ class AnimatedSnackBar {
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: _appearanceMode == AppearanceMode.top
-            ? MediaQuery.of(_context).padding.top + 5
-            : MediaQuery.sizeOf(_context).height - 100,
+            ? MediaQuery.of(_context).padding.top + _snackTopPadding
+            : MediaQuery.sizeOf(_context).height - _snackBottomPadding,
         left: 16.0,
         right: 16.0,
         child: Dismissible(
@@ -277,6 +305,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
         child: TextButton(
           onPressed: config.deepLinkTransition,
           child: content ??
+              config.content ??
               Text.rich(
                 textAlign: TextAlign.center,
                 TextSpan(
@@ -313,7 +342,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
         .then()
         .slideY(begin: 0, end: 0.15, duration: 200.ms)
         .then(delay: 3.seconds)
-        .slideY(begin: 0, end: isMinus ? -2 : 2);
+        .slideY(begin: 0, end: isMinus ? -2 : 10);
   }
 }
 

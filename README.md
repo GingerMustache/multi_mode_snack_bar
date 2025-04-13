@@ -11,6 +11,11 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages).
 -->
 
+Perfect for:
+- Global notifications
+- Deep links
+- Lightweight snackbars
+
 # Table of Contents
 - [Features](#features)
 - [Installation](#installation)
@@ -30,15 +35,16 @@ Perfect for global notifications, deep links, and lightweight snackbars.
 
 - ✅ Easy to use
 - ✅ No need to pass `context` every time
-- ✅ Customizable appearance (top/bottom)
+- ✅ Customizable appearance (top or bottom)
 - ✅ Beautiful entrance and exit animations
-- ✅ Supports tappable actions (deep links or navigation)
+- ✅ Tappable actions (deep links or navigation)
 - ✅ Optional underlined text inside the snackbar
 - ✅ Auto-dismiss after 5 seconds
-- ✅ Handle-dismiss
-- ✅ Swipe up to dismiss manually
-- ✅ Haptic feedback on show
-- ✅ Custom configuration for different snack types (error, warning, etc.)
+- ✅ Manual dismiss support
+- ✅ Swipe up to dismiss
+- ✅ Haptic feedback when shown
+- ✅ Custom configurations for different snack types (error, warning, success, etc.)
+- ✅ Custom padding and margins for fine-tuned layout
 
 
 ## Installation
@@ -64,8 +70,8 @@ builder: (context, child) {
         builder: (context) {
           AnimatedSnackBar.initialize(
             context,
-            appearanceMode: AppearanceMode.bottom, // Custom appearance mode
-            );
+            appearanceMode: AppearanceMode.bottom, // or AppearanceMode.top
+          );
           return child!;
         },
       ),
@@ -73,11 +79,11 @@ builder: (context, child) {
   );
 }
 
-// or shorter case
+// Or, use a cleaner approach:
 builder: (context, child) => OverlayWrapper(
   sneckInitializer: (context) => AnimatedSnackBar.initialize(
     context,
-    appearanceMode: AppearanceMode.bottom, // Custom appearance mode
+    appearanceMode: AppearanceMode.bottom,
   ),
   child: child,
 ),
@@ -136,7 +142,7 @@ class ErrorSnack extends BaseSnackBarConfig {
     super.deepLinkTransition,
   }) : super(
           // default settings for the error snack
-          backgroundColor: Colors.red.withOpacity(0.96),
+        backgroundColor: Colors.red.withOpacity(0.96),
           textStyle: const TextStyle(
             color: Colors.yellow,
             fontSize: 16,
@@ -144,6 +150,7 @@ class ErrorSnack extends BaseSnackBarConfig {
           ),
           underliningPart: 'click here',
           underliningPartColor: Colors.teal,
+          contentPadding: 16, // Custom padding
         );
 }
 
@@ -173,10 +180,24 @@ AnimatedSnackBar.show(
 ```
 
 ## Customization
-- **underliningPart**: Adds underlined text at the end of your message.
 
-- **deepLinkTransition**: Add an optional callback that runs when the snackbar is tapped.
+- **Position**: Top or Bottom via appearanceMode
 
+- **Text Style**: Custom font, size, color, weight
+
+- **Background Color**: Custom background color or gradient
+
+- **Underlined Part**: Text and color
+
+- **Content Padding**: Adjust inner padding (contentPadding)
+
+- **Dismiss Duration**: Auto-dismiss timing (currently defaults to 5 seconds)
+
+- **Haptic Feedback**: Enabled by default
+
+- **Swipe to Dismiss**: Enabled by default
+
+- **Actions**: Add deepLinkTransition for tappable actions
 
 ## License
 MIT License. Free to use and modify.
