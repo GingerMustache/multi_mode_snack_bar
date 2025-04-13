@@ -184,6 +184,7 @@ class AnimatedSnackBar {
             overlayEntry.remove();
           },
           child: _AnimatedSnackBarContent(
+            deepLinkTransition: deepLinkTransition,
             content: content,
             textStyle: textStyle,
             contentPadding: contentPadding,
@@ -271,9 +272,11 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   final AppearanceMode appearanceMode;
   final double? contentPadding;
   final Widget? content;
+  final Function()? deepLinkTransition;
 
   const _AnimatedSnackBarContent({
     required this.config,
+    required this.deepLinkTransition,
     required this.message,
     required this.underliningPart,
     required this.textColor,
@@ -303,7 +306,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                   : config.contentPadding!),
         ),
         child: TextButton(
-          onPressed: config.deepLinkTransition,
+          onPressed: deepLinkTransition ?? config.deepLinkTransition,
           child: content ??
               config.content ??
               Text.rich(
