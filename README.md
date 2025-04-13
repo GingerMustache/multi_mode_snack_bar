@@ -64,7 +64,7 @@ builder: (context, child) {
         builder: (context) {
           AnimatedSnackBar.initialize(
             context,
-            appearanceMode: AppearanceMode.bottom, // AppearanceMode.top
+            appearanceMode: AppearanceMode.bottom, // Custom appearance mode
             );
           return child!;
         },
