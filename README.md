@@ -56,7 +56,7 @@ dependencies:
 #### Step 1: Initialize once in your MaterialApp builder
 
 ```dart
-//Add this to your app's MaterialApp:
+// Add this to your app's MaterialApp:
 builder: (context, child) {
   return Overlay(
     initialEntries: [
@@ -72,6 +72,15 @@ builder: (context, child) {
     ],
   );
 }
+
+// or shorter case
+builder: (context, child) => OverlayWrapper(
+  sneckInitializer: (context) => AnimatedSnackBar.initialize(
+    context,
+    appearanceMode: AppearanceMode.bottom, // Custom appearance mode
+  ),
+  child: child,
+),
 ```
 
 <div style="padding: 5px;"></div>
@@ -88,7 +97,8 @@ AnimatedSnackBar.show('Your message here');
 AnimatedSnackBar.show(
   message: 'Test snackbar',
   configMode: ConfigMode.error,
-  textColor: Colors.amber,
+  contentPadding: 10,
+  textColor: Colors.amber, // or custom textStyle
   backgroundColor: Colors.black,
   underliningPart: 'click here',
   underliningPartColor: Colors.teal
@@ -125,11 +135,15 @@ class ErrorSnack extends BaseSnackBarConfig {
     super.message,
     super.deepLinkTransition,
   }) : super(
-  // default settings for the error snack
+          // default settings for the error snack
           backgroundColor: Colors.red.withOpacity(0.96),
-          textColor: Colors.black,
+          textStyle: const TextStyle(
+            color: Colors.yellow,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
           underliningPart: 'click here',
-          underliningPartColor: Colors.teal
+          underliningPartColor: Colors.teal,
         );
 }
 
