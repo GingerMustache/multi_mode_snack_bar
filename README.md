@@ -1,4 +1,4 @@
-![snack_record-ezgif com-resize](https://github.com/user-attachments/assets/a90a1753-41e1-44ef-af33-364dd4c5fe1e)<!--
+
 This README describes the package. If you publish this package to pub.dev,
 this README's contents appear on the landing page for your package.
 
