@@ -24,7 +24,7 @@ Perfect for:
 - [Contact](#contact)
 
 # Preview
-commig soon
+![Demo]()
 
 # Multi-mode Animated Snack
 A simple and elegant top snackbar for Flutter that animates beautifully and does not require context every time — just once during initialization.
