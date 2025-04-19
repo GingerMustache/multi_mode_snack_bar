@@ -37,7 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_animate: ^4.5.2
   multi_mode_animated_snack:
-    path: ../../
+    path: ../
 
 dev_dependencies:
   flutter_test:

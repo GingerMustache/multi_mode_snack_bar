@@ -1,3 +1,4 @@
+/// A Flutter library for displaying customizable, animated snack bars.
 library multi_mode_animated_snack;
 
 import 'package:flutter/material.dart';
@@ -47,19 +48,19 @@ enum AppearanceMode { top, bottom }
 class AnimatedSnackBar {
   AnimatedSnackBar._(); // Private constructor for singleton pattern
 
-  // List of currently displayed snack bars (to manage multiple instances)
+  /// List of currently displayed snack bars (to manage multiple instances)
   static final List<OverlayEntry> _snackBars = [];
 
-  // Root overlay state to insert overlay entries
+  /// Root overlay state to insert overlay entries
   static OverlayState? _rootOverlay;
 
-  // Context to access media queries and theme
+  /// Context to access media queries and theme
   static late BuildContext _context;
 
-  // Map to store custom configurations for each mode
+  /// Map to store custom configurations for each mode
   static final Map<ConfigMode, BaseSnackBarConfig?> _configModeMap = {};
 
-  // Default fallback message
+  /// Default fallback message
   static const String helloAnimatedSnack = "hey there, animated snack bar";
 
   /// Initialize the snack bar system.
@@ -110,10 +111,10 @@ class AnimatedSnackBar {
     });
   }
 
-  // Default mode if none provided
+  /// Default mode if none provided
   static const ConfigMode _configMode = ConfigMode.common;
 
-// Default appearance mode if none provided
+  /// Default appearance mode if none provided
   static AppearanceMode _appearanceMode = AppearanceMode.top;
 
   /// Bottom padding value.
@@ -164,13 +165,13 @@ class AnimatedSnackBar {
     Function()? deepLinkTransition,
     String underliningPart = '',
   }) {
-    // Trigger light haptic feedback when snack bar appears
+    /// Trigger light haptic feedback when snack bar appears
     services.HapticFeedback.lightImpact();
 
-    // Get current overlay state
+    /// Get current overlay state
     final overlay = _rootOverlay ?? Overlay.of(_context);
 
-    // Remove any existing snack bars before showing new one
+    /// Remove any existing snack bars before showing new one
     _removeAllSnacks();
 
     late OverlayEntry overlayEntry;
@@ -252,13 +253,13 @@ class AnimatedSnackBar {
       ),
     );
 
-    // Insert snack bar into overlay
+    /// Insert snack bar into overlay
     overlay.insert(overlayEntry);
 
-    // Keep track of currently displayed snack bars
+    /// Keep track of currently displayed snack bars
     _snackBars.add(overlayEntry);
 
-    // Auto remove after 5 seconds if not dismissed manually
+    /// Auto remove after 5 seconds if not dismissed manually
     Future.delayed(const Duration(seconds: 5), () {
       if (_snackBars.contains(overlayEntry)) {
         _snackBars.remove(overlayEntry);
@@ -422,7 +423,7 @@ abstract class BaseSnackBarConfig {
   });
 }
 
-// Default error SnackBar
+/// Default error SnackBar
 class _ErrorSnackBarConfig extends BaseSnackBarConfig {
   _ErrorSnackBarConfig({
     super.message,
@@ -438,7 +439,7 @@ class _ErrorSnackBarConfig extends BaseSnackBarConfig {
         );
 }
 
-// Default warning SnackBar
+/// Default warning SnackBar
 class _WarningSnackBarConfig extends BaseSnackBarConfig {
   _WarningSnackBarConfig({
     super.message,
@@ -454,7 +455,7 @@ class _WarningSnackBarConfig extends BaseSnackBarConfig {
         );
 }
 
-// Default success SnackBar
+/// Default success SnackBar
 class _SuccessSnackBarConfig extends BaseSnackBarConfig {
   _SuccessSnackBarConfig({
     super.message,
@@ -470,7 +471,7 @@ class _SuccessSnackBarConfig extends BaseSnackBarConfig {
         );
 }
 
-// Default common SnackBar
+/// Default common SnackBar
 class _CommonSnackBarConfig extends BaseSnackBarConfig {
   _CommonSnackBarConfig({
     super.message,

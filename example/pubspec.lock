@@ -150,10 +150,10 @@ packages:
   multi_mode_animated_snack:
     dependency: "direct main"
     description:
-      path: "../.."
+      path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.3"
   path:
     dependency: transitive
     description:

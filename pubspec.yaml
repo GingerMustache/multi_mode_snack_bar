@@ -1,6 +1,6 @@
 name: multi_mode_animated_snack
 description: "A customizable and multi-mode animated snackbar for Flutter."
-version: 0.0.2
+version: 0.0.4
 homepage: https://github.com/GingerMustache/multi_mode_snack_bar
 repository: https://github.com/GingerMustache/multi_mode_snack_bar
 issue_tracker: https://github.com/GingerMustache/multi_mode_snack_bar/issues
@@ -15,9 +15,6 @@ dependencies:
   flutter_animate: ^4.5.2  
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
 
 flutter:
   # no assets or fonts for now, clean

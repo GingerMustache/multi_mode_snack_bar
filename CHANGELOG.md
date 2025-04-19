@@ -1,10 +1,5 @@
-## 0.0.1
-
+## [0.0.1]
 - Initial release of Multi-mode Animated Snack!
-- Show animated snackbars without passing context every time.
-- Custom appearance (top/bottom), animations, and configurations.
-- Support for haptic feedback, swipe to dismiss, auto-dismiss.
-- Add tappable actions (deep links).
 
-## [0.0.2]
+## [0.0.4]
 - Updated README.md
