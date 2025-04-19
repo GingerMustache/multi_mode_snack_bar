@@ -128,6 +128,8 @@ class AnimatedSnackBar {
   ///
   /// [backgroundColor] — optional background color override.
   ///
+  /// [borderRadius] — optional border radius override.
+  ///
   /// [content] — optional custom widget to display instead of text.
   ///
   /// [contentPadding] — optional padding around the content (default: 0). Must be >= 0.
@@ -137,6 +139,8 @@ class AnimatedSnackBar {
   /// [textStyle] — optional text style override.
   ///
   /// [underliningPartColor] — optional color for underlined text part.
+  ///
+  /// [underlineColor] — optional color for underlined line part.
   ///
   /// [configMode] — optional predefined configuration mode (error, warning, success, common).
   ///
@@ -150,9 +154,11 @@ class AnimatedSnackBar {
     Color? backgroundColor,
     Widget? content,
     double? contentPadding,
+    double? borderRadius,
     Color? textColor,
     TextStyle? textStyle,
     Color? underliningPartColor,
+    Color? underlineColor,
     ConfigMode? configMode,
     BaseSnackBarConfig? config,
     Function()? deepLinkTransition,
@@ -184,6 +190,8 @@ class AnimatedSnackBar {
             overlayEntry.remove();
           },
           child: _AnimatedSnackBarContent(
+            underliningLineColor: underlineColor,
+            borderRadius: borderRadius,
             deepLinkTransition: deepLinkTransition,
             content: content,
             textStyle: textStyle,
@@ -198,36 +206,44 @@ class AnimatedSnackBar {
                 switch (configMode ?? _configMode) {
                   ConfigMode.common => _configModeMap[configMode] ??
                       _CommonSnackBarConfig(
+                        borderRadius: borderRadius,
                         message: message ?? helloAnimatedSnack,
                         backgroundColor: backgroundColor,
                         textColor: textColor,
                         underliningPart: underliningPart,
                         deepLinkTransition: deepLinkTransition,
                         underliningPartColor: underliningPartColor,
+                        underlineColor: underlineColor,
                         contentPadding: contentPadding,
                       ),
                   ConfigMode.success => _configModeMap[configMode] ??
                       _SuccessSnackBarConfig(
+                          borderRadius: borderRadius,
                           message: message ?? helloAnimatedSnack,
                           underliningPart: underliningPart,
                           deepLinkTransition: deepLinkTransition,
                           textColor: textColor,
                           underliningPartColor: underliningPartColor,
+                          underlineColor: underlineColor,
                           contentPadding: contentPadding),
                   ConfigMode.warning => _configModeMap[configMode] ??
                       _WarningSnackBarConfig(
+                          borderRadius: borderRadius,
                           message: message ?? helloAnimatedSnack,
                           underliningPart: underliningPart,
                           deepLinkTransition: deepLinkTransition,
                           textColor: textColor,
                           underliningPartColor: underliningPartColor,
+                          underlineColor: underlineColor,
                           contentPadding: contentPadding),
                   ConfigMode.error => _configModeMap[configMode] ??
                       _ErrorSnackBarConfig(
+                        borderRadius: borderRadius,
                         message: message ?? helloAnimatedSnack,
                         underliningPart: underliningPart,
                         deepLinkTransition: deepLinkTransition,
                         underliningPartColor: underliningPartColor,
+                        underlineColor: underlineColor,
                         contentPadding: contentPadding,
                       ),
                 },
@@ -268,24 +284,28 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   final Color? textColor;
   final TextStyle? textStyle;
   final Color? underliningPartColor;
+  final Color? underliningLineColor;
   final Color? backgroundColor;
   final AppearanceMode appearanceMode;
   final double? contentPadding;
+  final double? borderRadius;
   final Widget? content;
   final Function()? deepLinkTransition;
 
   const _AnimatedSnackBarContent({
     required this.config,
-    required this.deepLinkTransition,
+    required this.borderRadius,
     required this.message,
     required this.underliningPart,
     required this.textColor,
     required this.underliningPartColor,
+    required this.underliningLineColor,
     required this.backgroundColor,
     required this.appearanceMode,
     required this.contentPadding,
     required this.textStyle,
     required this.content,
+    required this.deepLinkTransition,
   });
 
   @override
@@ -293,7 +313,8 @@ class _AnimatedSnackBarContent extends StatelessWidget {
     final isMinus = appearanceMode == AppearanceMode.top;
 
     return Material(
-      borderRadius: BorderRadius.circular(5),
+      borderRadius:
+          BorderRadius.circular(borderRadius ?? config.borderRadius ?? 5),
       elevation: 6.0,
       color: backgroundColor ??
           config.backgroundColor ??
@@ -322,7 +343,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                                   config.textColor ??
                                   Colors.white),
                     ),
-                    if (content != null)
+                    if (content == null)
                       TextSpan(
                         text: config.underliningPart ?? underliningPart,
                         style: TextStyle(
@@ -330,6 +351,9 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                               underliningPartColor ??
                               Colors.white,
                           decoration: TextDecoration.underline,
+                          decorationColor: config.underlineColor ??
+                              underliningLineColor ??
+                              Colors.white,
                         ),
                       ),
                   ],
@@ -349,7 +373,27 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   }
 }
 
-// Abstract base class
+/// Abstract base class
+///
+/// [backgroundColor] — optional background color override.
+///
+/// [content] — optional custom widget to display instead of text.
+///
+/// [contentPadding] — optional padding around the content (default: 0). Must be >= 0.
+///
+/// [textColor] — optional text color override.
+///
+/// [textStyle] — optional text style override.
+///
+/// [underliningPartColor] — optional color for underlined text part.
+///
+/// [underlineColor] — optional color for underlined text part.
+///
+/// [deepLinkTransition] — optional callback triggered when the snack bar is tapped.
+///
+/// [underliningPart] — optional part of the text to underline.
+///
+/// [borderRadius] — optional border radius override.
 abstract class BaseSnackBarConfig {
   final String? message;
   final String? underliningPart;
@@ -358,17 +402,21 @@ abstract class BaseSnackBarConfig {
   final Color? textColor;
   final TextStyle? textStyle;
   final Color? underliningPartColor;
+  final Color? underlineColor;
   final double? contentPadding;
+  final double? borderRadius;
   final Widget? content;
 
   const BaseSnackBarConfig({
     this.message,
+    this.borderRadius,
     this.underliningPart,
     this.deepLinkTransition,
     this.backgroundColor,
     this.textColor,
     this.textStyle,
     this.underliningPartColor,
+    this.underlineColor,
     this.contentPadding,
     this.content,
   });
@@ -381,7 +429,9 @@ class _ErrorSnackBarConfig extends BaseSnackBarConfig {
     super.underliningPart,
     super.deepLinkTransition,
     super.underliningPartColor,
+    super.underlineColor,
     super.contentPadding,
+    super.borderRadius,
   }) : super(
           backgroundColor: Colors.red.withOpacity(0.96),
           textColor: Colors.white,
@@ -396,7 +446,9 @@ class _WarningSnackBarConfig extends BaseSnackBarConfig {
     super.deepLinkTransition,
     super.textColor,
     super.underliningPartColor,
+    super.underlineColor,
     super.contentPadding,
+    super.borderRadius,
   }) : super(
           backgroundColor: Colors.yellow.withOpacity(0.96),
         );
@@ -410,7 +462,9 @@ class _SuccessSnackBarConfig extends BaseSnackBarConfig {
     super.deepLinkTransition,
     super.textColor,
     super.underliningPartColor,
+    super.underlineColor,
     super.contentPadding,
+    super.borderRadius,
   }) : super(
           backgroundColor: Colors.green.withOpacity(0.96),
         );
@@ -424,7 +478,9 @@ class _CommonSnackBarConfig extends BaseSnackBarConfig {
     super.deepLinkTransition,
     super.textColor,
     super.underliningPartColor,
+    super.underlineColor,
     super.contentPadding,
     super.backgroundColor,
+    super.borderRadius,
   });
 }

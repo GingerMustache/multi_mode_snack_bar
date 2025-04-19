@@ -107,6 +107,8 @@ AnimatedSnackBar.show(
   textColor: Colors.amber, // or custom textStyle
   backgroundColor: Colors.black,
   underliningPart: 'click here',
+  underlineColor: Colors.red,
+  borderRadius: 100,
   underliningPartColor: Colors.teal
   deepLinkTransition: () {
     // Handle tap, e.g., navigate
@@ -120,7 +122,7 @@ AnimatedSnackBar.show(
 
 Add custom configurations during initialization
 
-If you want to fully customize different snack types (error, success, etc.), add them during initialization:
+If you want to fully customize different snack types (error, success, warning, common), add them during initialization:
 ```dart
 AnimatedSnackBar.initialize(
   context,
@@ -150,7 +152,8 @@ class ErrorSnack extends BaseSnackBarConfig {
           ),
           underliningPart: 'click here',
           underliningPartColor: Colors.teal,
-          contentPadding: 16, // Custom padding
+          contentPadding: 16,
+          // others
         );
 }
 
