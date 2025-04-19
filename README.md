@@ -1,4 +1,4 @@
-
+<!--
 This README describes the package. If you publish this package to pub.dev,
 this README's contents appear on the landing page for your package.
 
@@ -24,7 +24,7 @@ Perfect for:
 - [Contact](#contact)
 
 # Preview
-![Uploading snack_record-ezgif.com-resize.gif…]
+![Demo]()
 
 # Multi-mode Animated Snack
 A simple and elegant top snackbar for Flutter that animates beautifully and does not require context every time — just once during initialization.
