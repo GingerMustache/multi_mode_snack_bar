@@ -24,7 +24,7 @@ Perfect for:
 - [Contact](#contact)
 
 # Preview
-![Demo](https://raw.githubusercontent.com/GingerMustache/multi_mode_snack_bar/main/lib/example/assets/snack_demo.gif)
+![Demo](https://raw.githubusercontent.com/GingerMustache/multi_mode_snack_bar/main/example/assets/snack_demo.gif)
 
 # Multi-mode Animated Snack
 A simple and elegant top snackbar for Flutter that animates beautifully and does not require context every time — just once during initialization.
