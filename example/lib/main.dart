@@ -35,19 +35,21 @@ class MyApp extends StatelessWidget {
 
 class ErrorSnack extends BaseSnackBarConfig {
   ErrorSnack({
-    super.message,
+    // super.message,
     super.deepLinkTransition,
   }) : super(
+          message: "heheh",
           backgroundColor: Colors.red.withOpacity(0.96),
           borderRadius: 100,
           textColor: Colors.white,
-          displaySeconds: 1000, // only dismiss or wait 1000 seconds
+          // displaySeconds: 1000, // only dismiss or wait 1000 seconds
           textStyle: const TextStyle(
             color: Colors.yellow,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
-          underliningPart: '100 borderRadius',
+          underliningPart:
+              '100 borderRadius, you was so young when started wait',
           underliningPartColor: Colors.teal,
         );
 }
@@ -57,11 +59,11 @@ class WarningSnack extends BaseSnackBarConfig {
     super.message,
     super.deepLinkTransition,
   }) : super(
-            displaySeconds: 6,
+            displaySeconds: 2,
             backgroundColor: Colors.yellow.withOpacity(0.96),
             textColor: Colors.grey,
             underliningPartColor: Colors.green,
-            underliningPart: 'contentPadding 25',
+            underliningPart: 'contentPadding 25 little bit longer 6 seconds',
             underlineColor: Colors.red,
             contentPadding: 25);
 }
@@ -72,14 +74,14 @@ class SuccessSnack extends BaseSnackBarConfig {
     super.underliningPart,
     super.textColor,
   }) : super(
-          displaySeconds: 3,
+          // displaySeconds: 3,
           backgroundColor: Colors.green.withOpacity(0.96),
           content: const Row(
             children: [
               Icon(Icons.check_circle, color: Colors.white),
               SizedBox(width: 10),
               Text(
-                'Success with page transition',
+                'Success with page transition, fast 3 seconds',
                 style: TextStyle(color: Colors.white),
               ),
             ],
@@ -101,6 +103,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   void _showSnack(ConfigMode mode, {bool deepLinkTransition = false}) {
     AnimatedSnackBar.show(
+      displaySeconds: 10,
       deepLinkTransition: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => const SuccessPage()),
       ),

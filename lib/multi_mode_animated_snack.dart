@@ -129,6 +129,8 @@ class AnimatedSnackBar {
 
   /// Display an animated snack bar.
   ///
+  /// Show func configuration got priority over the ConfigMode one.
+  ///
   /// [message] — text to display inside the snack bar.
   ///
   /// [displaySeconds] - optional If not dismissed manually, the snack bar will be removed after this time.
@@ -176,6 +178,12 @@ class AnimatedSnackBar {
     /// Set default values for optional parameters
     _displaySeconds = displaySeconds ?? _displaySeconds;
 
+    /// A function to update the display duration of the snack bar.
+    ///
+    /// This is used to dynamically change the display time for the snack bar
+    /// while it is being shown.
+    ///
+    /// [value] — The new display duration in seconds.
     Function(int value) _changeDisplaySeconds =
         (int value) => _displaySeconds = displaySeconds ?? value;
 
@@ -336,7 +344,8 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMinus = appearanceMode == AppearanceMode.top;
-    displaySecondsFunc(config.displaySeconds ?? displaySeconds ?? 5);
+    displaySecondsFunc(displaySeconds ?? config.displaySeconds ?? 5);
+    final displayTime = ((config.displaySeconds ?? displaySeconds ?? 5) - 2);
 
     return Material(
       borderRadius:
@@ -394,8 +403,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
         .slideY(begin: 0.15, end: 0, duration: 250.ms)
         .then()
         .slideY(begin: 0, end: 0.15, duration: 200.ms)
-        .then(
-            delay: ((config.displaySeconds ?? displaySeconds ?? 5) - 2).seconds)
+        .then(delay: (displayTime < 0 ? 0 : displayTime).seconds)
         .slideY(begin: 0, end: isMinus ? -2 : 10);
   }
 }
