@@ -117,6 +117,10 @@ class AnimatedSnackBar {
   /// Default appearance mode if none provided
   static AppearanceMode _appearanceMode = AppearanceMode.top;
 
+  /// Default display time for snack bars (in seconds)
+  /// If not dismissed manually, the snack bar will be removed after this time.
+  static int _displaySeconds = 5;
+
   /// Bottom padding value.
   static double _snackBottomPadding = 100;
 
@@ -126,6 +130,9 @@ class AnimatedSnackBar {
   /// Display an animated snack bar.
   ///
   /// [message] — text to display inside the snack bar.
+  ///
+  /// [displaySeconds] - optional If not dismissed manually, the snack bar will be removed after this time.
+  /// Default is 5 seconds.
   ///
   /// [backgroundColor] — optional background color override.
   ///
@@ -153,6 +160,7 @@ class AnimatedSnackBar {
   static void show({
     String? message,
     Color? backgroundColor,
+    int? displaySeconds,
     Widget? content,
     double? contentPadding,
     double? borderRadius,
@@ -165,6 +173,12 @@ class AnimatedSnackBar {
     Function()? deepLinkTransition,
     String underliningPart = '',
   }) {
+    /// Set default values for optional parameters
+    _displaySeconds = displaySeconds ?? _displaySeconds;
+
+    Function(int value) _changeDisplaySeconds =
+        (int value) => _displaySeconds = displaySeconds ?? value;
+
     /// Trigger light haptic feedback when snack bar appears
     services.HapticFeedback.lightImpact();
 
@@ -191,6 +205,8 @@ class AnimatedSnackBar {
             overlayEntry.remove();
           },
           child: _AnimatedSnackBarContent(
+            displaySecondsFunc: _changeDisplaySeconds,
+            displaySeconds: _displaySeconds,
             underliningLineColor: underlineColor,
             borderRadius: borderRadius,
             deepLinkTransition: deepLinkTransition,
@@ -207,6 +223,7 @@ class AnimatedSnackBar {
                 switch (configMode ?? _configMode) {
                   ConfigMode.common => _configModeMap[configMode] ??
                       _CommonSnackBarConfig(
+                        displaySeconds: displaySeconds,
                         borderRadius: borderRadius,
                         message: message ?? helloAnimatedSnack,
                         backgroundColor: backgroundColor,
@@ -219,6 +236,7 @@ class AnimatedSnackBar {
                       ),
                   ConfigMode.success => _configModeMap[configMode] ??
                       _SuccessSnackBarConfig(
+                          displaySeconds: displaySeconds,
                           borderRadius: borderRadius,
                           message: message ?? helloAnimatedSnack,
                           underliningPart: underliningPart,
@@ -229,6 +247,7 @@ class AnimatedSnackBar {
                           contentPadding: contentPadding),
                   ConfigMode.warning => _configModeMap[configMode] ??
                       _WarningSnackBarConfig(
+                          displaySeconds: displaySeconds,
                           borderRadius: borderRadius,
                           message: message ?? helloAnimatedSnack,
                           underliningPart: underliningPart,
@@ -239,6 +258,7 @@ class AnimatedSnackBar {
                           contentPadding: contentPadding),
                   ConfigMode.error => _configModeMap[configMode] ??
                       _ErrorSnackBarConfig(
+                        displaySeconds: displaySeconds,
                         borderRadius: borderRadius,
                         message: message ?? helloAnimatedSnack,
                         underliningPart: underliningPart,
@@ -260,7 +280,7 @@ class AnimatedSnackBar {
     _snackBars.add(overlayEntry);
 
     /// Auto remove after 5 seconds if not dismissed manually
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(Duration(seconds: _displaySeconds), () {
       if (_snackBars.contains(overlayEntry)) {
         _snackBars.remove(overlayEntry);
         overlayEntry.remove();
@@ -281,6 +301,8 @@ class AnimatedSnackBar {
 class _AnimatedSnackBarContent extends StatelessWidget {
   final BaseSnackBarConfig config;
   final String message;
+  final int? displaySeconds;
+  final Function(int) displaySecondsFunc;
   final String underliningPart;
   final Color? textColor;
   final TextStyle? textStyle;
@@ -294,7 +316,9 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   final Function()? deepLinkTransition;
 
   const _AnimatedSnackBarContent({
+    required this.displaySecondsFunc,
     required this.config,
+    required this.displaySeconds,
     required this.borderRadius,
     required this.message,
     required this.underliningPart,
@@ -312,6 +336,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMinus = appearanceMode == AppearanceMode.top;
+    displaySecondsFunc(config.displaySeconds ?? displaySeconds ?? 5);
 
     return Material(
       borderRadius:
@@ -369,7 +394,8 @@ class _AnimatedSnackBarContent extends StatelessWidget {
         .slideY(begin: 0.15, end: 0, duration: 250.ms)
         .then()
         .slideY(begin: 0, end: 0.15, duration: 200.ms)
-        .then(delay: 3.seconds)
+        .then(
+            delay: ((config.displaySeconds ?? displaySeconds ?? 5) - 2).seconds)
         .slideY(begin: 0, end: isMinus ? -2 : 10);
   }
 }
@@ -377,6 +403,9 @@ class _AnimatedSnackBarContent extends StatelessWidget {
 /// Abstract base class
 ///
 /// [backgroundColor] — optional background color override.
+///
+/// [displaySeconds] in seconds - optional If not dismissed manually, the snack bar will be removed after this time.
+/// Default is 5 seconds.
 ///
 /// [content] — optional custom widget to display instead of text.
 ///
@@ -397,6 +426,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
 /// [borderRadius] — optional border radius override.
 abstract class BaseSnackBarConfig {
   final String? message;
+  final int? displaySeconds;
   final String? underliningPart;
   final Function()? deepLinkTransition;
   final Color? backgroundColor;
@@ -410,6 +440,7 @@ abstract class BaseSnackBarConfig {
 
   const BaseSnackBarConfig({
     this.message,
+    this.displaySeconds,
     this.borderRadius,
     this.underliningPart,
     this.deepLinkTransition,
@@ -427,6 +458,7 @@ abstract class BaseSnackBarConfig {
 class _ErrorSnackBarConfig extends BaseSnackBarConfig {
   _ErrorSnackBarConfig({
     super.message,
+    super.displaySeconds,
     super.underliningPart,
     super.deepLinkTransition,
     super.underliningPartColor,
@@ -443,6 +475,7 @@ class _ErrorSnackBarConfig extends BaseSnackBarConfig {
 class _WarningSnackBarConfig extends BaseSnackBarConfig {
   _WarningSnackBarConfig({
     super.message,
+    super.displaySeconds,
     super.underliningPart,
     super.deepLinkTransition,
     super.textColor,
@@ -459,6 +492,7 @@ class _WarningSnackBarConfig extends BaseSnackBarConfig {
 class _SuccessSnackBarConfig extends BaseSnackBarConfig {
   _SuccessSnackBarConfig({
     super.message,
+    super.displaySeconds,
     super.underliningPart,
     super.deepLinkTransition,
     super.textColor,
@@ -475,6 +509,7 @@ class _SuccessSnackBarConfig extends BaseSnackBarConfig {
 class _CommonSnackBarConfig extends BaseSnackBarConfig {
   _CommonSnackBarConfig({
     super.message,
+    super.displaySeconds,
     super.underliningPart,
     super.deepLinkTransition,
     super.textColor,

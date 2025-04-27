@@ -41,6 +41,7 @@ class ErrorSnack extends BaseSnackBarConfig {
           backgroundColor: Colors.red.withOpacity(0.96),
           borderRadius: 100,
           textColor: Colors.white,
+          displaySeconds: 1000, // only dismiss or wait 1000 seconds
           textStyle: const TextStyle(
             color: Colors.yellow,
             fontSize: 16,
@@ -56,6 +57,7 @@ class WarningSnack extends BaseSnackBarConfig {
     super.message,
     super.deepLinkTransition,
   }) : super(
+            displaySeconds: 6,
             backgroundColor: Colors.yellow.withOpacity(0.96),
             textColor: Colors.grey,
             underliningPartColor: Colors.green,
@@ -70,6 +72,7 @@ class SuccessSnack extends BaseSnackBarConfig {
     super.underliningPart,
     super.textColor,
   }) : super(
+          displaySeconds: 3,
           backgroundColor: Colors.green.withOpacity(0.96),
           content: const Row(
             children: [
