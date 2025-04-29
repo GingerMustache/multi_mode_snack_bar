@@ -32,17 +32,14 @@ class MyApp extends StatelessWidget {
 }
 
 // === Base Configs for Snack Types ===
-
 class ErrorSnack extends BaseSnackBarConfig {
-  ErrorSnack({
-    // super.message,
-    super.deepLinkTransition,
-  }) : super(
-          message: "heheh",
+  ErrorSnack()
+      : super(
+          message: "default error message",
           backgroundColor: Colors.red.withOpacity(0.96),
           borderRadius: 100,
           textColor: Colors.white,
-          // displaySeconds: 1000, // only dismiss or wait 1000 seconds
+          displaySeconds: 1000, // only dismiss or wait 1000 seconds
           textStyle: const TextStyle(
             color: Colors.yellow,
             fontSize: 16,
@@ -55,26 +52,21 @@ class ErrorSnack extends BaseSnackBarConfig {
 }
 
 class WarningSnack extends BaseSnackBarConfig {
-  WarningSnack({
-    super.message,
-    super.deepLinkTransition,
-  }) : super(
+  WarningSnack()
+      : super(
             displaySeconds: 2,
             backgroundColor: Colors.yellow.withOpacity(0.96),
             textColor: Colors.grey,
             underliningPartColor: Colors.green,
-            underliningPart: 'contentPadding 25 little bit longer 6 seconds',
+            underliningPart: 'contentPadding 25, little bit longer 6 seconds',
             underlineColor: Colors.red,
             contentPadding: 25);
 }
 
 class SuccessSnack extends BaseSnackBarConfig {
-  SuccessSnack({
-    super.message,
-    super.underliningPart,
-    super.textColor,
-  }) : super(
-          // displaySeconds: 3,
+  SuccessSnack()
+      : super(
+          displaySeconds: 10,
           backgroundColor: Colors.green.withOpacity(0.96),
           content: const Row(
             children: [
@@ -103,7 +95,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   void _showSnack(ConfigMode mode, {bool deepLinkTransition = false}) {
     AnimatedSnackBar.show(
-      displaySeconds: 10,
+      // displaySeconds: 10,
       deepLinkTransition: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => const SuccessPage()),
       ),
