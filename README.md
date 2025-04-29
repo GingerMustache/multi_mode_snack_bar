@@ -45,6 +45,7 @@ Perfect for global notifications, deep links, and lightweight snackbars.
 - ✅ Haptic feedback when shown
 - ✅ Custom configurations for different snack types (error, warning, success, etc.)
 - ✅ Custom padding and margins for fine-tuned layout
+- ✅ Custom display duration per snackbar
 
 
 ## Installation
@@ -122,6 +123,14 @@ AnimatedSnackBar.show(
 
 Add custom configurations during initialization
 
+⚠️ Configuration Override Behavior
+
+If you set configMode, all parameters from that mode can still be redefined in the show method.
+This is by design — it allows flexibility per use case.
+
+To set default values for specific types of snacks (e.g. error, warning, success), extend the BaseSnackBarConfig class and pass your custom config during initialization.
+Then, override only the necessary parameters when calling show.
+
 If you want to fully customize different snack types (error, success, warning, common), add them during initialization:
 ```dart
 AnimatedSnackBar.initialize(
@@ -140,10 +149,10 @@ Define your custom configurations:
 class ErrorSnack extends BaseSnackBarConfig {
   ErrorSnack({
     // these parameters should be provided each time you show the snackbar
-    super.message,
     super.deepLinkTransition,
   }) : super(
           // default settings for the error snack
+        message: 'Something went wrong!',
         backgroundColor: Colors.red.withOpacity(0.96),
           textStyle: const TextStyle(
             color: Colors.yellow,
@@ -170,14 +179,18 @@ class WarningSnack extends BaseSnackBarConfig {
   );
 }
 
+
 // Repeat for others.
 ```
 <div style="padding: 5px;"></div>
 Use it like this:
 
 ```dart
+// To use the default error message "Something went wrong!", simply use: configMode: ConfigMode.error
+// You can override the default message and any other parameters as needed:
 AnimatedSnackBar.show(
-  message: 'Something went wrong!',
+  message: '404', // Overrides the default error message
+  backgroundColor: Colors.black, // Example of overriding another parameter
   configMode: ConfigMode.error,
 );
 ```

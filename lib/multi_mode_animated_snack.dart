@@ -1,6 +1,8 @@
 /// A Flutter library for displaying customizable, animated snack bars.
 library multi_mode_animated_snack;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as services;
 import 'package:flutter_animate/flutter_animate.dart';
@@ -59,9 +61,6 @@ class AnimatedSnackBar {
 
   /// Map to store custom configurations for each mode
   static final Map<ConfigMode, BaseSnackBarConfig?> _configModeMap = {};
-
-  /// Default fallback message
-  static const String helloAnimatedSnack = "hey there, animated snack bar";
 
   /// Initialize the snack bar system.
   ///
@@ -129,7 +128,7 @@ class AnimatedSnackBar {
 
   /// Display an animated snack bar.
   ///
-  /// Show func configuration got priority over the ConfigMode one.
+  ///NOTE! Configuration parameters provided directly to the [show] method take priority over those defined in [ConfigMode].
   ///
   /// [message] — text to display inside the snack bar.
   ///
@@ -173,7 +172,7 @@ class AnimatedSnackBar {
     ConfigMode? configMode,
     BaseSnackBarConfig? config,
     Function()? deepLinkTransition,
-    String underliningPart = '',
+    String? underliningPart,
   }) {
     /// Set default values for optional parameters
     _displaySeconds = displaySeconds ?? _displaySeconds;
@@ -184,8 +183,14 @@ class AnimatedSnackBar {
     /// while it is being shown.
     ///
     /// [value] — The new display duration in seconds.
-    Function(int value) _changeDisplaySeconds =
-        (int value) => _displaySeconds = displaySeconds ?? value;
+    ///
+    StreamController<int> _changeDisplayTimeController =
+        StreamController<int>.broadcast();
+    Function(int value) _changeDisplaySeconds = (int value) {
+      _displaySeconds = displaySeconds ?? value;
+
+      _changeDisplayTimeController.add(_displaySeconds);
+    };
 
     /// Trigger light haptic feedback when snack bar appears
     services.HapticFeedback.lightImpact();
@@ -223,7 +228,7 @@ class AnimatedSnackBar {
             contentPadding: contentPadding,
             underliningPartColor: underliningPartColor,
             appearanceMode: _appearanceMode,
-            message: message ?? helloAnimatedSnack,
+            message: message,
             underliningPart: underliningPart,
             textColor: textColor,
             backgroundColor: backgroundColor,
@@ -231,9 +236,9 @@ class AnimatedSnackBar {
                 switch (configMode ?? _configMode) {
                   ConfigMode.common => _configModeMap[configMode] ??
                       _CommonSnackBarConfig(
-                        displaySeconds: displaySeconds,
+                        displaySeconds: _displaySeconds,
                         borderRadius: borderRadius,
-                        message: message ?? helloAnimatedSnack,
+                        message: message,
                         backgroundColor: backgroundColor,
                         textColor: textColor,
                         underliningPart: underliningPart,
@@ -244,9 +249,9 @@ class AnimatedSnackBar {
                       ),
                   ConfigMode.success => _configModeMap[configMode] ??
                       _SuccessSnackBarConfig(
-                          displaySeconds: displaySeconds,
+                          displaySeconds: _displaySeconds,
                           borderRadius: borderRadius,
-                          message: message ?? helloAnimatedSnack,
+                          message: message,
                           underliningPart: underliningPart,
                           deepLinkTransition: deepLinkTransition,
                           textColor: textColor,
@@ -255,9 +260,9 @@ class AnimatedSnackBar {
                           contentPadding: contentPadding),
                   ConfigMode.warning => _configModeMap[configMode] ??
                       _WarningSnackBarConfig(
-                          displaySeconds: displaySeconds,
+                          displaySeconds: _displaySeconds,
                           borderRadius: borderRadius,
-                          message: message ?? helloAnimatedSnack,
+                          message: message,
                           underliningPart: underliningPart,
                           deepLinkTransition: deepLinkTransition,
                           textColor: textColor,
@@ -266,9 +271,9 @@ class AnimatedSnackBar {
                           contentPadding: contentPadding),
                   ConfigMode.error => _configModeMap[configMode] ??
                       _ErrorSnackBarConfig(
-                        displaySeconds: displaySeconds,
+                        displaySeconds: _displaySeconds,
                         borderRadius: borderRadius,
-                        message: message ?? helloAnimatedSnack,
+                        message: message,
                         underliningPart: underliningPart,
                         deepLinkTransition: deepLinkTransition,
                         underliningPartColor: underliningPartColor,
@@ -288,11 +293,19 @@ class AnimatedSnackBar {
     _snackBars.add(overlayEntry);
 
     /// Auto remove after 5 seconds if not dismissed manually
-    Future.delayed(Duration(seconds: _displaySeconds), () {
-      if (_snackBars.contains(overlayEntry)) {
-        _snackBars.remove(overlayEntry);
-        overlayEntry.remove();
-      }
+    print('====pretime===');
+    print(_displaySeconds);
+    _changeDisplayTimeController.stream.listen((time) {
+      print('====time===');
+      print(_displaySeconds);
+      Future.delayed(Duration(seconds: time), () {
+        if (_snackBars.contains(overlayEntry)) {
+          _snackBars.remove(overlayEntry);
+          overlayEntry.remove();
+
+          _changeDisplayTimeController.close();
+        }
+      });
     });
   }
 
@@ -308,10 +321,10 @@ class AnimatedSnackBar {
 /// Internal widget to render animated snack bar content
 class _AnimatedSnackBarContent extends StatelessWidget {
   final BaseSnackBarConfig config;
-  final String message;
+  final String? message;
   final int? displaySeconds;
   final Function(int) displaySecondsFunc;
-  final String underliningPart;
+  final String? underliningPart;
   final Color? textColor;
   final TextStyle? textStyle;
   final Color? underliningPartColor;
@@ -344,7 +357,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMinus = appearanceMode == AppearanceMode.top;
-    displaySecondsFunc(displaySeconds ?? config.displaySeconds ?? 5);
+    displaySecondsFunc(config.displaySeconds ?? displaySeconds ?? 5);
     final displayTime = ((config.displaySeconds ?? displaySeconds ?? 5) - 2);
 
     return Material(
@@ -370,7 +383,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: '${config.message ?? message} ',
+                      text: '${message ?? config.message} ',
                       style: textStyle ??
                           config.textStyle ??
                           TextStyle(
@@ -380,14 +393,14 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                     ),
                     if (content == null)
                       TextSpan(
-                        text: config.underliningPart ?? underliningPart,
+                        text: underliningPart ?? config.underliningPart,
                         style: TextStyle(
-                          color: config.underliningPartColor ??
-                              underliningPartColor ??
+                          color: underliningPartColor ??
+                              config.underliningPartColor ??
                               Colors.white,
                           decoration: TextDecoration.underline,
-                          decorationColor: config.underlineColor ??
-                              underliningLineColor ??
+                          decorationColor: underliningLineColor ??
+                              config.underlineColor ??
                               Colors.white,
                         ),
                       ),
