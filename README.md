@@ -130,7 +130,10 @@ However, you can override any parameter via the `show()` method — providing fu
 
 🧱 Custom Configs at Initialization
 To set default values for specific types of snacks (e.g. `error`, `warning`, `success`), extend the `BaseSnackBarConfig` class and pass your custom config during initialization.
+
 Then, override only the necessary parameters when calling `show()`.
+
+initialize method:
 ```dart
 AnimatedSnackBar.initialize(
   context,
@@ -150,6 +153,7 @@ class ErrorSnack extends BaseSnackBarConfig {
    : super(
           // default settings for the error snack
         message: 'Something went wrong!',
+        displaySeconds: 1000, // only dismiss or wait 1000 seconds
         backgroundColor: Colors.red.withOpacity(0.96),
           textStyle: const TextStyle(
             color: Colors.yellow,
@@ -164,13 +168,8 @@ class ErrorSnack extends BaseSnackBarConfig {
 }
 
 class WarningSnack extends BaseSnackBarConfig {
-  WarningSnack({
-    // these can be overridden at show-time
-    super.message,
-    super.underliningPart,
-    super.deepLinkTransition,
-    super.textColor,
-  }) : super(
+  WarningSnack()
+   : super(
     // fixed background color for warnings
     backgroundColor: Colors.yellow.withOpacity(0.96),
   );

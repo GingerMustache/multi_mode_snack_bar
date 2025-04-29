@@ -82,7 +82,6 @@ class SuccessSnack extends BaseSnackBarConfig {
 }
 
 // === Home Page ===
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
 
@@ -95,7 +94,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   void _showSnack(ConfigMode mode, {bool deepLinkTransition = false}) {
     AnimatedSnackBar.show(
-      // displaySeconds: 10,
+      displaySeconds: 10,
       deepLinkTransition: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => const SuccessPage()),
       ),
