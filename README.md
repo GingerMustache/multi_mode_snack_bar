@@ -35,6 +35,7 @@ Perfect for global notifications, deep links, and lightweight snackbars.
 
 - ✅ Easy to use
 - ✅ No need to pass `context` every time
+- ✅ Custom display duration per snackbar
 - ✅ Customizable appearance (top or bottom)
 - ✅ Beautiful entrance and exit animations
 - ✅ Tappable actions (deep links or navigation)
@@ -45,7 +46,6 @@ Perfect for global notifications, deep links, and lightweight snackbars.
 - ✅ Haptic feedback when shown
 - ✅ Custom configurations for different snack types (error, warning, success, etc.)
 - ✅ Custom padding and margins for fine-tuned layout
-- ✅ Custom display duration per snackbar
 
 
 ## Installation
@@ -102,6 +102,7 @@ AnimatedSnackBar.show('Your message here');
 #### Step 3: (Optional) Add settings per message
 ```dart
 AnimatedSnackBar.show(
+  displaySeconds: 10 // 5 default
   message: 'Test snackbar',
   configMode: ConfigMode.error,
   contentPadding: 10,
@@ -119,23 +120,21 @@ AnimatedSnackBar.show(
 <div style="padding: 5px;"></div>
 
 ## Advanced Usage ⚙️ (Optional)
-- Note: you need to perform a hot restart for the changes to take effect.
+💡 A hot restart is required after updating initial configurations.
 
-Add custom configurations during initialization
+You can customize snack behavior by defining default configurations during initialization.
 
 ⚠️ Configuration Override Behavior
+When using `configMode`, the base configuration is loaded from your preset (e.g. `ErrorSnack`).
+However, you can override any parameter via the `show()` method — providing full flexibility per use case.
 
-If you set configMode, all parameters from that mode can still be redefined in the show method.
-This is by design — it allows flexibility per use case.
-
-To set default values for specific types of snacks (e.g. error, warning, success), extend the BaseSnackBarConfig class and pass your custom config during initialization.
-Then, override only the necessary parameters when calling show.
-
-If you want to fully customize different snack types (error, success, warning, common), add them during initialization:
+🧱 Custom Configs at Initialization
+To set default values for specific types of snacks (e.g. `error`, `warning`, `success`), extend the `BaseSnackBarConfig` class and pass your custom config during initialization.
+Then, override only the necessary parameters when calling `show()`.
 ```dart
 AnimatedSnackBar.initialize(
   context,
-  appearanceMode: AppearanceMode.top, // Custom appearance mode
+  appearanceMode: AppearanceMode.top, 
   common: CommonSnack(),
   error: ErrorSnack(),
   success: SuccessSnack(),
@@ -147,10 +146,8 @@ AnimatedSnackBar.initialize(
 Define your custom configurations:
 ```dart
 class ErrorSnack extends BaseSnackBarConfig {
-  ErrorSnack({
-    // these parameters should be provided each time you show the snackbar
-    super.deepLinkTransition,
-  }) : super(
+  ErrorSnack()
+   : super(
           // default settings for the error snack
         message: 'Something went wrong!',
         backgroundColor: Colors.red.withOpacity(0.96),
@@ -194,26 +191,44 @@ AnimatedSnackBar.show(
   configMode: ConfigMode.error,
 );
 ```
-
 ## Customization
+You can customize the appearance and behavior of the snack bar using the show() method or via predefined configs.
 
-- **Position**: Top or Bottom via appearanceMode
+✅ Appearance 
+- **Position**: Top or Bottom via `appearanceMode` (during initialization)
 
-- **Text Style**: Custom font, size, color, weight
+- **Text Style**: Fully customizable using `textStyle`
 
-- **Background Color**: Custom background color or gradient
+- **Text Color**: Use `textColor` for quick overrides
 
-- **Underlined Part**: Text and color
+- **Background Color**: Set `backgroundColor` directly or via configs
 
-- **Content Padding**: Adjust inner padding (contentPadding)
+- **Border Radius**: Round the corners with `borderRadius`
 
-- **Dismiss Duration**: Auto-dismiss timing (currently defaults to 5 seconds)
+- **Underlined Part**: Customize `underliningPart`, `underliningPartColor`, and `underlineColor`
 
-- **Haptic Feedback**: Enabled by default
+📦 Content
+- **Message Text**: Set `message` directly or use default from config
+
+- **Custom Widget**: Use `content` to fully override the default message widget
+ 
+- **Content Padding**: Customize spacing around content using `contentPadding`
+
+⏱️ Timing & Behavior
+- **Dismiss Duration**: Customize with `displaySeconds` (defaults to 5 seconds)
 
 - **Swipe to Dismiss**: Enabled by default
 
-- **Actions**: Add deepLinkTransition for tappable actions
+- **Haptic Feedback**: Enabled by default
+
+- **Tappable Actions**: Provide `deepLinkTransition` to handle taps
+
+⚙️ Configuration
+- **Predefined Modes**: Use `configMode` for common cases (`error`, `success`, `warning`, `common`)
+
+- **Full Custom Config**: Pass your own `BaseSnackBarConfig` via config for full control
+
+- **Runtime Overrides**: Any parameter passed to `show()` overrides the selected config
 
 ## License
 MIT License. Free to use and modify.

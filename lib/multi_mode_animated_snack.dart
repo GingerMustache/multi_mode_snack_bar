@@ -292,12 +292,12 @@ class AnimatedSnackBar {
     /// Keep track of currently displayed snack bars
     _snackBars.add(overlayEntry);
 
-    /// Auto remove after 5 seconds if not dismissed manually
-    print('====pretime===');
-    print(_displaySeconds);
+    /// Listens to the stream of updated display times for the snack bar.
+    ///
+    /// When a new display time is emitted, it schedules the removal of the snack bar
+    /// after the specified duration. If the snack bar is still active, it is removed
+    /// from the overlay and the stream controller is closed.
     _changeDisplayTimeController.stream.listen((time) {
-      print('====time===');
-      print(_displaySeconds);
       Future.delayed(Duration(seconds: time), () {
         if (_snackBars.contains(overlayEntry)) {
           _snackBars.remove(overlayEntry);
