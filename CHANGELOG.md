@@ -28,3 +28,5 @@ AnimatedSnackBar.show(
 
 - Improved documentation to reflect the override behavior in advanced usage and method comments.
   
+## [0.1.1]
+- Fixed: Properly disposed StreamController and StreamSubscription in AnimatedSnackBar.show() method to prevent memory leaks and ensure clean resource management when snack bars are dismissed manually or automatically.

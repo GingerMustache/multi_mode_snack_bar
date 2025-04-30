@@ -184,13 +184,15 @@ class AnimatedSnackBar {
     ///
     /// [value] — The new display duration in seconds.
     ///
-    StreamController<int> _changeDisplayTimeController =
-        StreamController<int>.broadcast();
+    final StreamController<int> _changeDisplayTimeController =
+        StreamController<int>();
     Function(int value) _changeDisplaySeconds = (int value) {
       _displaySeconds = displaySeconds ?? value;
 
       _changeDisplayTimeController.add(_displaySeconds);
     };
+
+    late final StreamSubscription<int> _timeStreamSubscription;
 
     /// Trigger light haptic feedback when snack bar appears
     services.HapticFeedback.lightImpact();
@@ -201,8 +203,31 @@ class AnimatedSnackBar {
     /// Remove any existing snack bars before showing new one
     _removeAllSnacks();
 
+    /// Cleans up resources and removes the snack bar from the overlay.
+    ///
+    /// - Removes the [overlayEntry] from the [_snackBars] list and the overlay.
+    /// - Cancels the [_timeStreamSubscription] to stop listening to display time updates.
+    /// - Closes the [_changeDisplayTimeController] to release resources.
+    void _cleanup(OverlayEntry overlayEntry) {
+      if (_snackBars.contains(overlayEntry)) {
+        _snackBars.remove(overlayEntry);
+        overlayEntry.remove();
+      }
+      _timeStreamSubscription.cancel();
+      _changeDisplayTimeController.close();
+    }
+
+    /// Declaration of the [OverlayEntry] instance used to represent the snack bar in the overlay.
+    ///
+    /// This variable is initialized later with the actual [OverlayEntry] object
+    /// that defines the snack bar's appearance and behavior.
     late OverlayEntry overlayEntry;
 
+    /// Initializes the [OverlayEntry] instance with the snack bar's appearance and behavior.
+    ///
+    /// The [OverlayEntry] is built using a [Positioned] widget to define its position on the screen,
+    /// and a [Dismissible] widget to allow users to swipe the snack bar away. The content of the snack bar
+    /// is rendered by the [_AnimatedSnackBarContent] widget, which handles the display and animation.
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: _appearanceMode == AppearanceMode.top
@@ -216,6 +241,7 @@ class AnimatedSnackBar {
           onDismissed: (direction) {
             _snackBars.remove(overlayEntry);
             overlayEntry.remove();
+            _cleanup(overlayEntry);
           },
           child: _AnimatedSnackBarContent(
             displaySecondsFunc: _changeDisplaySeconds,
@@ -297,13 +323,11 @@ class AnimatedSnackBar {
     /// When a new display time is emitted, it schedules the removal of the snack bar
     /// after the specified duration. If the snack bar is still active, it is removed
     /// from the overlay and the stream controller is closed.
-    _changeDisplayTimeController.stream.listen((time) {
+    _timeStreamSubscription =
+        _changeDisplayTimeController.stream.listen((time) {
       Future.delayed(Duration(seconds: time), () {
         if (_snackBars.contains(overlayEntry)) {
-          _snackBars.remove(overlayEntry);
-          overlayEntry.remove();
-
-          _changeDisplayTimeController.close();
+          _cleanup(overlayEntry);
         }
       });
     });
