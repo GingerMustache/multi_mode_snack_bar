@@ -24,7 +24,7 @@ Perfect for:
 - [Contact](#contact)
 
 # Preview
-![Demo](https://raw.githubusercontent.com/GingerMustache/multi_mode_snack_bar/main/example/assets/snack_demo.gif)
+![Demo](https://github.com/user-attachments/assets/6f659111-7e0b-4c19-9b77-95994951b7cb)
 
 # Multi-mode Animated Snack
 A simple and elegant top snackbar for Flutter that animates beautifully and does not require context every time — just once during initialization.
@@ -105,6 +105,7 @@ AnimatedSnackBar.show(
   displaySeconds: 10 // 5 default
   message: 'Test snackbar',
   configMode: ConfigMode.error,
+  elevation: 10, // 0 default
   contentPadding: 10,
   textColor: Colors.amber, // or custom textStyle
   backgroundColor: Colors.black,
@@ -160,7 +161,7 @@ class ErrorSnack extends BaseSnackBarConfig {
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
-          underliningPart: 'click here',
+          underliningPart: 'Click here',
           underliningPartColor: Colors.teal,
           contentPadding: 16,
           // others

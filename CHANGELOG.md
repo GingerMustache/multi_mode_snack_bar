@@ -30,3 +30,9 @@ AnimatedSnackBar.show(
   
 ## [0.1.1]
 - Fixed: Properly disposed StreamController and StreamSubscription in AnimatedSnackBar.show() method to prevent memory leaks and ensure clean resource management when snack bars are dismissed manually or automatically.
+
+## [0.1.2]
+- add snack elevation parameter
+- Fixed animation for AppearanceMode.top with snackTopPadding
+- Updated example
+- Updated README.md

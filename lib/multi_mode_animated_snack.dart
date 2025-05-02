@@ -143,6 +143,8 @@ class AnimatedSnackBar {
   ///
   /// [contentPadding] — optional padding around the content (default: 0). Must be >= 0.
   ///
+  /// [elevation] — optional elevation override (default: 0).
+  ///
   /// [textColor] — optional text color override.
   ///
   /// [textStyle] — optional text style override.
@@ -164,6 +166,7 @@ class AnimatedSnackBar {
     int? displaySeconds,
     Widget? content,
     double? contentPadding,
+    double? elevation,
     double? borderRadius,
     Color? textColor,
     TextStyle? textStyle,
@@ -252,6 +255,7 @@ class AnimatedSnackBar {
             content: content,
             textStyle: textStyle,
             contentPadding: contentPadding,
+            elevation: elevation,
             underliningPartColor: underliningPartColor,
             appearanceMode: _appearanceMode,
             message: message,
@@ -262,6 +266,7 @@ class AnimatedSnackBar {
                 switch (configMode ?? _configMode) {
                   ConfigMode.common => _configModeMap[configMode] ??
                       _CommonSnackBarConfig(
+                        elevation: elevation,
                         displaySeconds: _displaySeconds,
                         borderRadius: borderRadius,
                         message: message,
@@ -275,6 +280,7 @@ class AnimatedSnackBar {
                       ),
                   ConfigMode.success => _configModeMap[configMode] ??
                       _SuccessSnackBarConfig(
+                          elevation: elevation,
                           displaySeconds: _displaySeconds,
                           borderRadius: borderRadius,
                           message: message,
@@ -286,6 +292,7 @@ class AnimatedSnackBar {
                           contentPadding: contentPadding),
                   ConfigMode.warning => _configModeMap[configMode] ??
                       _WarningSnackBarConfig(
+                          elevation: elevation,
                           displaySeconds: _displaySeconds,
                           borderRadius: borderRadius,
                           message: message,
@@ -297,6 +304,7 @@ class AnimatedSnackBar {
                           contentPadding: contentPadding),
                   ConfigMode.error => _configModeMap[configMode] ??
                       _ErrorSnackBarConfig(
+                        elevation: elevation,
                         displaySeconds: _displaySeconds,
                         borderRadius: borderRadius,
                         message: message,
@@ -357,6 +365,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   final AppearanceMode appearanceMode;
   final double? contentPadding;
   final double? borderRadius;
+  final double? elevation;
   final Widget? content;
   final Function()? deepLinkTransition;
 
@@ -373,6 +382,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
     required this.backgroundColor,
     required this.appearanceMode,
     required this.contentPadding,
+    required this.elevation,
     required this.textStyle,
     required this.content,
     required this.deepLinkTransition,
@@ -387,7 +397,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
     return Material(
       borderRadius:
           BorderRadius.circular(borderRadius ?? config.borderRadius ?? 5),
-      elevation: 6.0,
+      elevation: elevation ?? config.elevation ?? 0.0,
       color: backgroundColor ??
           config.backgroundColor ??
           Colors.black.withOpacity(0.96),
@@ -407,7 +417,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: '${message ?? config.message} ',
+                      text: '${message ?? config.message ?? ''} ',
                       style: textStyle ??
                           config.textStyle ??
                           TextStyle(
@@ -417,7 +427,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                     ),
                     if (content == null)
                       TextSpan(
-                        text: underliningPart ?? config.underliningPart,
+                        text: underliningPart ?? config.underliningPart ?? '',
                         style: TextStyle(
                           color: underliningPartColor ??
                               config.underliningPartColor ??
@@ -441,7 +451,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
         .then()
         .slideY(begin: 0, end: 0.15, duration: 200.ms)
         .then(delay: (displayTime < 0 ? 0 : displayTime).seconds)
-        .slideY(begin: 0, end: isMinus ? -2 : 10);
+        .slideY(begin: 0, end: isMinus ? -10 : 10);
   }
 }
 
@@ -455,6 +465,8 @@ class _AnimatedSnackBarContent extends StatelessWidget {
 /// [content] — optional custom widget to display instead of text.
 ///
 /// [contentPadding] — optional padding around the content (default: 0). Must be >= 0.
+///
+/// [elevation] — optional elevation override (default: 0).
 ///
 /// [textColor] — optional text color override.
 ///
@@ -480,6 +492,7 @@ abstract class BaseSnackBarConfig {
   final Color? underliningPartColor;
   final Color? underlineColor;
   final double? contentPadding;
+  final double? elevation;
   final double? borderRadius;
   final Widget? content;
 
@@ -495,6 +508,7 @@ abstract class BaseSnackBarConfig {
     this.underliningPartColor,
     this.underlineColor,
     this.contentPadding,
+    this.elevation,
     this.content,
   });
 }
@@ -503,6 +517,7 @@ abstract class BaseSnackBarConfig {
 class _ErrorSnackBarConfig extends BaseSnackBarConfig {
   _ErrorSnackBarConfig({
     super.message,
+    super.elevation,
     super.displaySeconds,
     super.underliningPart,
     super.deepLinkTransition,
@@ -520,6 +535,7 @@ class _ErrorSnackBarConfig extends BaseSnackBarConfig {
 class _WarningSnackBarConfig extends BaseSnackBarConfig {
   _WarningSnackBarConfig({
     super.message,
+    super.elevation,
     super.displaySeconds,
     super.underliningPart,
     super.deepLinkTransition,
@@ -537,6 +553,7 @@ class _WarningSnackBarConfig extends BaseSnackBarConfig {
 class _SuccessSnackBarConfig extends BaseSnackBarConfig {
   _SuccessSnackBarConfig({
     super.message,
+    super.elevation,
     super.displaySeconds,
     super.underliningPart,
     super.deepLinkTransition,
@@ -554,6 +571,7 @@ class _SuccessSnackBarConfig extends BaseSnackBarConfig {
 class _CommonSnackBarConfig extends BaseSnackBarConfig {
   _CommonSnackBarConfig({
     super.message,
+    super.elevation,
     super.displaySeconds,
     super.underliningPart,
     super.deepLinkTransition,

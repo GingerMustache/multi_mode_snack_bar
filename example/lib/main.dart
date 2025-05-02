@@ -11,14 +11,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Multi Mode Animated Snack Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      debugShowCheckedModeBanner: false,
       builder: (context, child) => OverlayWrapper(
         sneckInitializer: (context) => AnimatedSnackBar.initialize(
           context,
+          snackTopPadding: 40,
           appearanceMode: AppearanceMode.top,
           error: ErrorSnack(),
           warning: WarningSnack(),
@@ -35,10 +32,9 @@ class MyApp extends StatelessWidget {
 class ErrorSnack extends BaseSnackBarConfig {
   ErrorSnack()
       : super(
-          message: "default error message",
+          message: "Default error message",
           backgroundColor: Colors.red.withOpacity(0.96),
           borderRadius: 100,
-          textColor: Colors.white,
           displaySeconds: 1000, // only dismiss or wait 1000 seconds
           textStyle: const TextStyle(
             color: Colors.yellow,
@@ -46,34 +42,35 @@ class ErrorSnack extends BaseSnackBarConfig {
             fontWeight: FontWeight.w600,
           ),
           underliningPart:
-              '100 borderRadius, you was so young when started wait',
-          underliningPartColor: Colors.teal,
+              '100 borderRadius — you were so young when you started waiting (1000 seconds)',
+          underliningPartColor: Colors.black,
         );
 }
 
 class WarningSnack extends BaseSnackBarConfig {
   WarningSnack()
       : super(
-            displaySeconds: 2,
+            displaySeconds: 6,
             backgroundColor: Colors.yellow.withOpacity(0.96),
             textColor: Colors.grey,
             underliningPartColor: Colors.green,
-            underliningPart: 'contentPadding 25, little bit longer 6 seconds',
-            underlineColor: Colors.red,
+            underliningPart:
+                'Content padding: 25 — just a little longer, 6 seconds',
+            underlineColor: Colors.redAccent,
             contentPadding: 25);
 }
 
 class SuccessSnack extends BaseSnackBarConfig {
   SuccessSnack()
       : super(
-          displaySeconds: 10,
+          displaySeconds: 3,
           backgroundColor: Colors.green.withOpacity(0.96),
           content: const Row(
             children: [
               Icon(Icons.check_circle, color: Colors.white),
               SizedBox(width: 10),
               Text(
-                'Success with page transition, fast 3 seconds',
+                'Success with page transition, just 3 seconds',
                 style: TextStyle(color: Colors.white),
               ),
             ],
@@ -92,22 +89,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  void _showSnack(ConfigMode mode, {bool deepLinkTransition = false}) {
-    AnimatedSnackBar.show(
-      displaySeconds: 10,
-      deepLinkTransition: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => const SuccessPage()),
-      ),
-      configMode: mode,
-      message: 'This is a ${mode.name} message',
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.white,
         title: Text(widget.title),
       ),
       body: Center(
@@ -117,16 +104,29 @@ class _HomePageState extends State<HomePage> {
           alignment: WrapAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () => _showSnack(ConfigMode.error),
+              style: styleFrom,
+              onPressed: () => AnimatedSnackBar.show(
+                elevation: 10,
+                configMode: ConfigMode.error,
+              ),
               child: const Text('Show Error Snack'),
             ),
             ElevatedButton(
-              onPressed: () =>
-                  _showSnack(ConfigMode.warning, deepLinkTransition: true),
+              style: styleFrom,
+              onPressed: () => AnimatedSnackBar.show(
+                message: 'This is a warning message',
+                configMode: ConfigMode.warning,
+              ),
               child: const Text('Show Warning Snack'),
             ),
             ElevatedButton(
-              onPressed: () => _showSnack(ConfigMode.success),
+              style: styleFrom,
+              onPressed: () => AnimatedSnackBar.show(
+                deepLinkTransition: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const SuccessPage()),
+                ),
+                configMode: ConfigMode.success,
+              ),
               child: const Text('Show Success Snack'),
             ),
           ],
@@ -134,6 +134,15 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  final styleFrom = ElevatedButton.styleFrom(
+    backgroundColor: Colors.white,
+    foregroundColor: Colors.black,
+    side: const BorderSide(color: Colors.black),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+  );
 }
 
 class SuccessPage extends StatelessWidget {
@@ -142,7 +151,9 @@ class SuccessPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Success Page'),
       ),
       body: const Center(
