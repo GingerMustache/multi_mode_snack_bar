@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:multi_mode_animated_snack/multi_mode_animated_snack.dart';
 
 void main() {
@@ -28,10 +29,26 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class CustomAnimatedWrapper implements AnimatedWrapperInterface {
+  @override
+  Widget animateWidget(bool isMinus, int displayTime, {required Widget child}) {
+    return SizedBox(
+      child: child,
+
+      // To set none animation snack, just return the child widget without any animation
+    ).animate().shimmer(duration: 350.ms).fadeIn(
+          duration: 350.ms,
+          curve: Curves.easeInOut,
+        );
+  }
+}
+
 // === Base Configs for Snack Types ===
 class ErrorSnack extends BaseSnackBarConfig {
   ErrorSnack()
       : super(
+          animatedWrapper:
+              CustomAnimatedWrapper(), // set custom animation to all error snacks
           message: "Default error message",
           backgroundColor: Colors.red.withOpacity(0.96),
           borderRadius: 100,
@@ -122,6 +139,8 @@ class _HomePageState extends State<HomePage> {
             ElevatedButton(
               style: styleFrom,
               onPressed: () => AnimatedSnackBar.show(
+                animateConfig: AnimateConfig
+                    .slideY, // set slideY animation to one success snack
                 deepLinkTransition: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const SuccessPage()),
                 ),

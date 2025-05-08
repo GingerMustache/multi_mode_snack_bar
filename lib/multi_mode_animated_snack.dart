@@ -7,6 +7,61 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as services;
 import 'package:flutter_animate/flutter_animate.dart';
 
+/// Wrapper interface for animated widgets.
+abstract class AnimatedWrapperInterface {
+  Widget animateWidget(bool isMinus, int displayTime, {required Widget child});
+}
+
+/// This class implements the [AnimatedWrapperInterface] and provides
+/// a method to animate widgets with a slide effect in the Y direction and a jump effect.
+final class SlideYJumpWrapper implements AnimatedWrapperInterface {
+  /// Singleton instance of [SlideYJumpWrapper].
+  static final SlideYJumpWrapper _shared = SlideYJumpWrapper._sharedInstance();
+  SlideYJumpWrapper._sharedInstance();
+  factory SlideYJumpWrapper() => _shared;
+
+  @override
+  Widget animateWidget(bool isMinus, int displayTime, {required Widget child}) {
+    return SizedBox(
+      child: child,
+    )
+        .animate()
+        .slideY(begin: isMinus ? -2 : 2, end: 0)
+        .then()
+        .slideY(begin: 0.15, end: 0, duration: 250.ms)
+        .then()
+        .slideY(begin: 0, end: 0.15, duration: 200.ms)
+        .then(delay: (displayTime < 0 ? 0 : displayTime).seconds)
+        .slideY(begin: 0, end: isMinus ? -10 : 10);
+  }
+}
+
+/// This class implements the [AnimatedWrapperInterface] and provides
+/// a method to animate widgets with a slide effect in the Y direction.
+final class SlideYWrapper implements AnimatedWrapperInterface {
+  /// Singleton instance of [SlideYWrapper].
+  static final SlideYWrapper _shared = SlideYWrapper._sharedInstance();
+  SlideYWrapper._sharedInstance();
+  factory SlideYWrapper() => _shared;
+
+  @override
+  Widget animateWidget(bool isMinus, int displayTime, {required Widget child}) {
+    return SizedBox(child: child)
+        .animate()
+        .slideY(
+            begin: isMinus ? -3 : 2,
+            end: 0,
+            curve: Curves.easeInOut,
+            duration: 450.ms)
+        .then(delay: (displayTime < 0 ? 0 : displayTime).seconds)
+        .slideY(
+          begin: 0,
+          end: isMinus ? -10 : 10,
+          curve: Curves.easeInOut,
+        );
+  }
+}
+
 /// A wrapper widget that provides an [Overlay] for displaying snack bars.
 ///
 /// Place this at the root of your app to initialize the animated snack bar system.
@@ -42,6 +97,9 @@ enum ConfigMode { error, warning, success, common }
 
 /// Defines the position where the snack bar will appear on the screen.
 enum AppearanceMode { top, bottom }
+
+/// Configuration for the animation effect of the snack bar.
+enum AnimateConfig { slideYJump, slideY }
 
 /// Core class for displaying animated snack bars.
 ///
@@ -137,6 +195,18 @@ class AnimatedSnackBar {
   ///
   /// [backgroundColor] — optional background color override.
   ///
+  /// [animateConfig] — optional animation configuration, defaults to [AnimateConfig.slideYJump].
+  ///
+  /// [animatedWrapper] — optional custom animation wrapper.
+  ///
+  /// To use a custom animation, implement the [AnimatedWrapperInterface] interface.
+  ///
+  /// Add your animation like a
+  ///
+  ///      SizedBox(
+  ///         child: child,
+  ///       ).animate() // add other animation
+  ///
   /// [borderRadius] — optional border radius override.
   ///
   /// [content] — optional custom widget to display instead of text.
@@ -161,6 +231,8 @@ class AnimatedSnackBar {
   ///
   /// [underliningPart] — optional part of the text to underline.
   static void show({
+    AnimateConfig? animateConfig,
+    AnimatedWrapperInterface? animatedWrapper,
     String? message,
     Color? backgroundColor,
     int? displaySeconds,
@@ -189,7 +261,7 @@ class AnimatedSnackBar {
     ///
     final StreamController<int> _changeDisplayTimeController =
         StreamController<int>();
-    Function(int value) _changeDisplaySeconds = (int value) {
+    void Function(int value) _changeDisplaySeconds = (int value) {
       _displaySeconds = displaySeconds ?? value;
 
       _changeDisplayTimeController.add(_displaySeconds);
@@ -247,6 +319,12 @@ class AnimatedSnackBar {
             _cleanup(overlayEntry);
           },
           child: _AnimatedSnackBarContent(
+            animatedWrapper: animatedWrapper ??
+                (animateConfig != null
+                    ? animateConfig == AnimateConfig.slideYJump
+                        ? SlideYJumpWrapper()
+                        : SlideYWrapper()
+                    : null),
             displaySecondsFunc: _changeDisplaySeconds,
             displaySeconds: _displaySeconds,
             underliningLineColor: underlineColor,
@@ -352,10 +430,11 @@ class AnimatedSnackBar {
 
 /// Internal widget to render animated snack bar content
 class _AnimatedSnackBarContent extends StatelessWidget {
+  final AnimatedWrapperInterface? animatedWrapper;
   final BaseSnackBarConfig config;
   final String? message;
   final int? displaySeconds;
-  final Function(int) displaySecondsFunc;
+  final void Function(int) displaySecondsFunc;
   final String? underliningPart;
   final Color? textColor;
   final TextStyle? textStyle;
@@ -369,7 +448,8 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   final Widget? content;
   final Function()? deepLinkTransition;
 
-  const _AnimatedSnackBarContent({
+  _AnimatedSnackBarContent({
+    required this.animatedWrapper,
     required this.displaySecondsFunc,
     required this.config,
     required this.displaySeconds,
@@ -394,70 +474,83 @@ class _AnimatedSnackBarContent extends StatelessWidget {
     displaySecondsFunc(config.displaySeconds ?? displaySeconds ?? 5);
     final displayTime = ((config.displaySeconds ?? displaySeconds ?? 5) - 2);
 
-    return Material(
-      borderRadius:
-          BorderRadius.circular(borderRadius ?? config.borderRadius ?? 5),
-      elevation: elevation ?? config.elevation ?? 0.0,
-      color: backgroundColor ??
-          config.backgroundColor ??
-          Colors.black.withOpacity(0.96),
-      child: Padding(
-        padding: EdgeInsets.all(
-          contentPadding ??
-              (config.contentPadding == null || config.contentPadding! < 0
-                  ? 0
-                  : config.contentPadding!),
-        ),
-        child: TextButton(
-          onPressed: deepLinkTransition ?? config.deepLinkTransition,
-          child: content ??
-              config.content ??
-              Text.rich(
-                textAlign: TextAlign.center,
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '${message ?? config.message ?? ''} ',
-                      style: textStyle ??
-                          config.textStyle ??
-                          TextStyle(
-                              color: textColor ??
-                                  config.textColor ??
-                                  Colors.white),
-                    ),
-                    if (content == null)
+    return (animatedWrapper ??
+            config.animatedWrapper ??
+            (config.animateConfig == AnimateConfig.slideYJump
+                ? SlideYJumpWrapper()
+                : SlideYWrapper()))
+        .animateWidget(
+      isMinus,
+      displayTime,
+      child: Material(
+        borderRadius:
+            BorderRadius.circular(borderRadius ?? config.borderRadius ?? 5),
+        elevation: elevation ?? config.elevation ?? 0.0,
+        color: backgroundColor ??
+            config.backgroundColor ??
+            Colors.black.withOpacity(0.96),
+        child: Padding(
+          padding: EdgeInsets.all(
+            contentPadding ??
+                (config.contentPadding == null || config.contentPadding! < 0
+                    ? 0
+                    : config.contentPadding!),
+          ),
+          child: TextButton(
+            onPressed: deepLinkTransition ?? config.deepLinkTransition,
+            child: content ??
+                config.content ??
+                Text.rich(
+                  textAlign: TextAlign.center,
+                  TextSpan(
+                    children: [
                       TextSpan(
-                        text: underliningPart ?? config.underliningPart ?? '',
-                        style: TextStyle(
-                          color: underliningPartColor ??
-                              config.underliningPartColor ??
-                              Colors.white,
-                          decoration: TextDecoration.underline,
-                          decorationColor: underliningLineColor ??
-                              config.underlineColor ??
-                              Colors.white,
-                        ),
+                        text: '${message ?? config.message ?? ''} ',
+                        style: textStyle ??
+                            config.textStyle ??
+                            TextStyle(
+                                color: textColor ??
+                                    config.textColor ??
+                                    Colors.white),
                       ),
-                  ],
+                      if (content == null)
+                        TextSpan(
+                          text: underliningPart ?? config.underliningPart ?? '',
+                          style: TextStyle(
+                            color: underliningPartColor ??
+                                config.underliningPartColor ??
+                                Colors.white,
+                            decoration: TextDecoration.underline,
+                            decorationColor: underliningLineColor ??
+                                config.underlineColor ??
+                                Colors.white,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
+          ),
         ),
       ),
-    )
-        .animate()
-        .slideY(begin: isMinus ? -2 : 2, end: 0)
-        .then()
-        .slideY(begin: 0.15, end: 0, duration: 250.ms)
-        .then()
-        .slideY(begin: 0, end: 0.15, duration: 200.ms)
-        .then(delay: (displayTime < 0 ? 0 : displayTime).seconds)
-        .slideY(begin: 0, end: isMinus ? -10 : 10);
+    );
   }
 }
 
 /// Abstract base class
 ///
 /// [backgroundColor] — optional background color override.
+///
+/// [animateConfig] — optional animation configuration, defaults to [AnimateConfig.slideYJump].
+///
+/// [animatedWrapper] — optional custom animation wrapper.
+///
+/// To use a custom animation, implement the [AnimatedWrapperInterface] interface.
+///
+/// Add your animation like a
+///
+///      SizedBox(
+///         child: child,
+///       ).animate() // add other animation
 ///
 /// [displaySeconds] in seconds - optional If not dismissed manually, the snack bar will be removed after this time.
 /// Default is 5 seconds.
@@ -482,6 +575,8 @@ class _AnimatedSnackBarContent extends StatelessWidget {
 ///
 /// [borderRadius] — optional border radius override.
 abstract class BaseSnackBarConfig {
+  final AnimatedWrapperInterface? animatedWrapper;
+  final AnimateConfig animateConfig;
   final String? message;
   final int? displaySeconds;
   final String? underliningPart;
@@ -497,7 +592,9 @@ abstract class BaseSnackBarConfig {
   final Widget? content;
 
   const BaseSnackBarConfig({
+    this.animateConfig = AnimateConfig.slideYJump,
     this.message,
+    this.animatedWrapper,
     this.displaySeconds,
     this.borderRadius,
     this.underliningPart,
