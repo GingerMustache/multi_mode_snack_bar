@@ -215,6 +215,8 @@ class WarningSnack extends BaseSnackBarConfig {
             );
 }
 ```
+![slide_y](https://github.com/user-attachments/assets/47a19403-9a5d-4661-862d-46d5f05cae6e)
+
 
 You can create your own custom animation for snackbars by implementing the `AnimatedWrapperInterface`. This allows you to fully control the animation using the [`flutter_animate`](https://pub.dev/packages/flutter_animate) package.
 
@@ -256,6 +258,9 @@ AnimatedSnackBar.show(
   animatedWrapper: CustomAnimatedWrapper(),
 );
 ```
+![shimmer_error](https://github.com/user-attachments/assets/75d374ed-528e-45ac-bdc9-44ca7f925455)
+
+
 This gives you the flexibility to define rich, animated snack experiences that match your app's design.
 
 ## Other Customization
