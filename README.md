@@ -205,7 +205,6 @@ Use built-in animations:
 AnimatedSnackBar.show(
   animateConfig: AnimateConfig
       .slideY, // set slideY animation to one success snack
-  
 ),
 
 class WarningSnack extends BaseSnackBarConfig {

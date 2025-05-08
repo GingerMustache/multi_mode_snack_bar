@@ -36,3 +36,12 @@ AnimatedSnackBar.show(
 - Fixed animation for AppearanceMode.top with snackTopPadding
 - Updated example
 - Updated README.md
+
+## [0.2.0]
+- Custom Animation Support
+
+→ You can now apply built-in animations using the `animateConfig` field (`slideY`, `slideYJump`).
+
+→ For full control, implement `AnimatedWrapperInterface` to define your own animation using `flutter_animate` package.
+
+🔍 See the new "Custom Animation" section in the README for detailed usage and examples.
