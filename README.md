@@ -21,9 +21,9 @@ Perfect for:
 # Table of Contents
 - [Features](#features)
 - [Installation](#installation)
-- [Quick Start 🚀](#quick-start-🚀)
-- [Advanced Usage ⚙️ (Optional)](#advanced-usage-⚙️-optional)
-- [Custom Animation 🎞️](#custom-animation-🎞️)
+- [Quick Start](#quick-start)
+- [Advanced Usage (Optional)](#advanced-usage-optional)
+- [Custom Animation](#custom-animation)
 - [Other Customization](#other-customization)
 - [Contact](#contact)
 
@@ -64,7 +64,7 @@ dependencies:
 
 <div style="padding: 5px;"></div>
 
-## Quick Start 🚀
+## Quick Start
 #### Step 1: Initialize once in your MaterialApp builder
 
 ```dart
@@ -127,7 +127,7 @@ AnimatedSnackBar.show(
 ```
 <div style="padding: 5px;"></div>
 
-## Advanced Usage ⚙️ (Optional)
+## Advanced Usage (Optional)
 💡 A hot restart is required after updating initial configurations.
 
 You can customize snack behavior by defining default configurations during initialization.
@@ -198,7 +198,7 @@ AnimatedSnackBar.show(
   configMode: ConfigMode.error,
 );
 ```
-## Custom Animation 🎞️
+## Custom Animation
 Use built-in animations:
 
 ```dart
