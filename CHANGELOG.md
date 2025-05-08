@@ -37,7 +37,7 @@ AnimatedSnackBar.show(
 - Updated example
 - Updated README.md
 
-## [0.2.0]
+## [0.2.1]
 - Custom Animation Support
 
 → You can now apply built-in animations using the `animateConfig` field (`slideY`, `slideYJump`).
@@ -45,3 +45,5 @@ AnimatedSnackBar.show(
 → For full control, implement `AnimatedWrapperInterface` to define your own animation using `flutter_animate` package.
 
 🔍 See the new "Custom Animation" section in the README for detailed usage and examples.
+
+- Updated README.md
