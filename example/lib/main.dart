@@ -32,14 +32,12 @@ class MyApp extends StatelessWidget {
 class CustomAnimatedWrapper implements AnimatedWrapperInterface {
   @override
   Widget animateWidget(bool isMinus, int displayTime, {required Widget child}) {
-    return SizedBox(
-      child: child,
-
-      // To set none animation snack, just return the child widget without any animation
-    ).animate().shimmer(duration: 350.ms).fadeIn(
-          duration: 350.ms,
-          curve: Curves.easeInOut,
-        );
+    return
+        // To set none animation snack, just return the child widget without any animation
+        child.animate().shimmer(duration: 350.ms).fadeIn(
+              duration: 350.ms,
+              curve: Curves.easeInOut,
+            );
   }
 }
 
@@ -67,6 +65,7 @@ class ErrorSnack extends BaseSnackBarConfig {
 class WarningSnack extends BaseSnackBarConfig {
   WarningSnack()
       : super(
+            animateConfig: AnimateConfig.slideY,
             displaySeconds: 6,
             backgroundColor: Colors.yellow.withOpacity(0.96),
             textColor: Colors.grey,

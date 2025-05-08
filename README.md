@@ -12,15 +12,19 @@ and the Flutter guide for
 -->
 
 Perfect for:
-- Global notifications
-- Deep links
-- Lightweight snackbars
+- Global app-wide notifications
+- Deep link routing and tappable actions
+- Custom animated snackbars
+
+
 
 # Table of Contents
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start 🚀](#quick-start-🚀)
 - [Advanced Usage ⚙️ (Optional)](#advanced-usage-⚙️-optional)
+- [Custom Animation 🎞️](#custom-animation-🎞️)
+- [Other Customization](#other-customization)
 - [Contact](#contact)
 
 # Preview
@@ -35,6 +39,7 @@ Perfect for global notifications, deep links, and lightweight snackbars.
 
 - ✅ Easy to use
 - ✅ No need to pass `context` every time
+- ✅ Custom entrance & exit animations
 - ✅ Custom display duration per snackbar
 - ✅ Customizable appearance (top or bottom)
 - ✅ Beautiful entrance and exit animations
@@ -103,6 +108,8 @@ AnimatedSnackBar.show('Your message here');
 ```dart
 AnimatedSnackBar.show(
   displaySeconds: 10 // 5 default
+  animateConfig: AnimateConfig.slideY, // default AnimateConfig.slideYJump
+  animatedWrapper: CustomAnimatedWrapper(), // For details, see [Custom Animation]
   message: 'Test snackbar',
   configMode: ConfigMode.error,
   elevation: 10, // 0 default
@@ -191,7 +198,67 @@ AnimatedSnackBar.show(
   configMode: ConfigMode.error,
 );
 ```
-## Customization
+## Custom Animation 🎞️
+Use built-in animations:
+
+```dart
+AnimatedSnackBar.show(
+  animateConfig: AnimateConfig
+      .slideY, // set slideY animation to one success snack
+  
+),
+
+class WarningSnack extends BaseSnackBarConfig {
+  WarningSnack()
+      : super(
+            animateConfig: AnimateConfig.slideY, // set slideY animation animation to all warning snacks
+            );
+}
+```
+
+You can create your own custom animation for snackbars by implementing the `AnimatedWrapperInterface`. This allows you to fully control the animation using the [`flutter_animate`](https://pub.dev/packages/flutter_animate) package.
+
+To do this:
+
+1. Create a class that implements `AnimatedWrapperInterface`.
+2. Return your desired animation in the `animateWidget()` method.
+3. Assign your custom wrapper either per-snack via `show()` or as the default in a custom config class (extending `BaseSnackBarConfig`).
+
+Example
+```dart
+class CustomAnimatedWrapper implements AnimatedWrapperInterface {
+  @override
+  Widget animateWidget(bool isMinus, int displayTime, {required Widget child}) {
+    return child.animate()
+      .shimmer(duration: 350.ms)
+      .fadeIn(
+        duration: 350.ms,
+        curve: Curves.easeInOut,
+      );
+  }
+}
+```
+Use it globally in a custom config:
+```dart
+class ErrorSnack extends BaseSnackBarConfig {
+  ErrorSnack()
+      : super(
+          animatedWrapper:
+              CustomAnimatedWrapper(), // set custom animation to all error snacks
+          // others 
+        );
+}
+```
+Or, use it per instance:
+```dart 
+AnimatedSnackBar.show(
+  message: 'This snack has a custom animation!',
+  animatedWrapper: CustomAnimatedWrapper(),
+);
+```
+This gives you the flexibility to define rich, animated snack experiences that match your app's design.
+
+## Other Customization
 You can customize the appearance and behavior of the snack bar using the show() method or via predefined configs.
 
 ✅ Appearance 

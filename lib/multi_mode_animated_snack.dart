@@ -195,17 +195,26 @@ class AnimatedSnackBar {
   ///
   /// [backgroundColor] — optional background color override.
   ///
-  /// [animateConfig] — optional animation configuration, defaults to [AnimateConfig.slideYJump].
+  /// [animateConfig] — Specifies the animation configuration for the snack bar.
+  /// Defaults to [AnimateConfig.slideYJump], which provides a slide and jump effect.
+  /// Use this to customize how the snack bar appears and disappears.
   ///
-  /// [animatedWrapper] — optional custom animation wrapper.
+  /// [animatedWrapper] — Allows you to provide a custom animation wrapper for the snack bar.
+  /// This can be used to override the default animation behavior with your own implementation.
   ///
   /// To use a custom animation, implement the [AnimatedWrapperInterface] interface.
+  /// This interface ensures that your custom animation is compatible with the snack bar system.
   ///
-  /// Add your animation like a
+  /// Example of adding a custom animation:
   ///
-  ///      SizedBox(
-  ///         child: child,
-  ///       ).animate() // add other animation
+  /// ```dart
+  /// SizedBox(
+  ///   child: child,
+  /// )
+  /// .animate() // Add your custom animation here
+  /// .fadeIn(duration: 300.ms) // Example of a fade-in effect
+  /// .scale(begin: 0.8, end: 1.0); // Example of a scaling effect
+  /// ```
   ///
   /// [borderRadius] — optional border radius override.
   ///
@@ -540,17 +549,26 @@ class _AnimatedSnackBarContent extends StatelessWidget {
 ///
 /// [backgroundColor] — optional background color override.
 ///
-/// [animateConfig] — optional animation configuration, defaults to [AnimateConfig.slideYJump].
+/// [animateConfig] — Specifies the animation configuration for the snack bar.
+/// Defaults to [AnimateConfig.slideYJump], which provides a slide and jump effect.
+/// Use this to customize how the snack bar appears and disappears.
 ///
-/// [animatedWrapper] — optional custom animation wrapper.
+/// [animatedWrapper] — Allows you to provide a custom animation wrapper for the snack bar.
+/// This can be used to override the default animation behavior with your own implementation.
 ///
 /// To use a custom animation, implement the [AnimatedWrapperInterface] interface.
+/// This interface ensures that your custom animation is compatible with the snack bar system.
 ///
-/// Add your animation like a
+/// Example of adding a custom animation:
 ///
-///      SizedBox(
-///         child: child,
-///       ).animate() // add other animation
+/// ```dart
+/// SizedBox(
+///   child: child,
+/// )
+/// .animate() // Add your custom animation here
+/// .fadeIn(duration: 300.ms) // Example of a fade-in effect
+/// .scale(begin: 0.8, end: 1.0); // Example of a scaling effect
+/// ```
 ///
 /// [displaySeconds] in seconds - optional If not dismissed manually, the snack bar will be removed after this time.
 /// Default is 5 seconds.
