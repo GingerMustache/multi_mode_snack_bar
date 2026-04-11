@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:multi_mode_animated_snack/multi_mode_animated_snack.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -33,66 +31,66 @@ class CustomAnimatedWrapper implements AnimatedWrapperInterface {
   @override
   Widget animateWidget(bool isMinus, int displayTime, {required Widget child}) {
     return
-    // To set none animation snack, just return the child widget without any animation
-    child
-        .animate()
-        .shimmer(duration: 350.ms)
-        .fadeIn(duration: 350.ms, curve: Curves.easeInOut);
+        // To set none animation snack, just return the child widget without any animation
+        child
+            .animate()
+            .shimmer(duration: 350.ms)
+            .fadeIn(duration: 350.ms, curve: Curves.easeInOut);
   }
 }
 
 // === Base Configs for Snack Types ===
 class ErrorSnack extends BaseSnackBarConfig {
   ErrorSnack()
-    : super(
-        animatedWrapper:
-            CustomAnimatedWrapper(), // set custom animation to all error snacks
-        message: "Default error message",
-        backgroundColor: Colors.red.withOpacity(0.96),
-        borderRadius: 100,
-        displaySeconds: 1000, // only dismiss or wait 1000 seconds
-        textStyle: const TextStyle(
-          color: Colors.yellow,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-        underliningPart:
-            '100 borderRadius — you were so young when you started waiting (1000 seconds)',
-        underliningPartColor: Colors.black,
-      );
+      : super(
+          animatedWrapper:
+              CustomAnimatedWrapper(), // set custom animation to all error snacks
+          message: "Default error message",
+          backgroundColor: Colors.red.withValues(alpha: 0.96),
+          borderRadius: 100,
+          displaySeconds: 1000, // only dismiss or wait 1000 seconds
+          textStyle: const TextStyle(
+            color: Colors.yellow,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          underliningPart:
+              '100 borderRadius — you were so young when you started waiting (1000 seconds)',
+          underliningPartColor: Colors.black,
+        );
 }
 
 class WarningSnack extends BaseSnackBarConfig {
   WarningSnack()
-    : super(
-        animateConfig: AnimateConfig.slideY,
-        displaySeconds: 6,
-        backgroundColor: Colors.yellow.withOpacity(0.96),
-        textColor: Colors.grey,
-        underliningPartColor: Colors.green,
-        underliningPart:
-            'Content padding: 25 — just a little longer, 6 seconds',
-        underlineColor: Colors.redAccent,
-        contentPadding: 25,
-      );
+      : super(
+          animateConfig: AnimateConfig.slideY,
+          displaySeconds: 6,
+          backgroundColor: Colors.yellow.withValues(alpha: 0.96),
+          textColor: Colors.grey,
+          underliningPartColor: Colors.green,
+          underliningPart:
+              'Content padding: 25 — just a little longer, 6 seconds',
+          underlineColor: Colors.redAccent,
+          contentPadding: 25,
+        );
 }
 
 class SuccessSnack extends BaseSnackBarConfig {
   SuccessSnack()
-    : super(
-        displaySeconds: 3,
-        backgroundColor: Colors.green.withOpacity(0.96),
-        content: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 10),
-            Text(
-              'Success with page transition, just 3 seconds',
-              style: TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-      );
+      : super(
+          displaySeconds: 3,
+          backgroundColor: Colors.green.withValues(alpha: 0.96),
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
+              Text(
+                'Success with page transition, just 3 seconds',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        );
 }
 
 // === Home Page ===
