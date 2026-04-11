@@ -497,7 +497,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
         elevation: elevation ?? config.elevation ?? 0.0,
         color: backgroundColor ??
             config.backgroundColor ??
-            Colors.black.withOpacity(0.96),
+            Colors.black.withValues(alpha: 0.96),
         child: Padding(
           padding: EdgeInsets.all(
             contentPadding ??
@@ -641,7 +641,7 @@ class _ErrorSnackBarConfig extends BaseSnackBarConfig {
     super.contentPadding,
     super.borderRadius,
   }) : super(
-          backgroundColor: Colors.red.withOpacity(0.96),
+          backgroundColor: Colors.red.withValues(alpha: 0.96),
           textColor: Colors.white,
         );
 }
@@ -660,7 +660,7 @@ class _WarningSnackBarConfig extends BaseSnackBarConfig {
     super.contentPadding,
     super.borderRadius,
   }) : super(
-          backgroundColor: Colors.yellow.withOpacity(0.96),
+          backgroundColor: Colors.yellow.withValues(alpha: 0.96),
         );
 }
 
@@ -678,7 +678,7 @@ class _SuccessSnackBarConfig extends BaseSnackBarConfig {
     super.contentPadding,
     super.borderRadius,
   }) : super(
-          backgroundColor: Colors.green.withOpacity(0.96),
+          backgroundColor: Colors.green.withValues(alpha: 0.96),
         );
 }
 

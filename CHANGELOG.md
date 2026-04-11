@@ -44,6 +44,11 @@ AnimatedSnackBar.show(
 
 → For full control, implement `AnimatedWrapperInterface` to define your own animation using `flutter_animate` package.
 
-🔍 See the new "Custom Animation" section in the README for detailed usage and examples.
+See the new "Custom Animation" section in the README for detailed usage and examples.
 
 - Updated README.md
+
+## [0.2.2]
+
+- Updated README.md
+- Updated example
