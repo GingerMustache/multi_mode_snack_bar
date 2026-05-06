@@ -154,7 +154,9 @@ class AnimatedSnackBar {
     );
   }
 
-  /// Private method to set custom configurations for different modes
+  /// Registers custom configurations for each [ConfigMode].
+  ///
+  /// Pass `null` to keep the built-in default for that mode.
   static _setConfigModes({
     BaseSnackBarConfig? common,
     BaseSnackBarConfig? error,
