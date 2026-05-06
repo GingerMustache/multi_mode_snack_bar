@@ -52,3 +52,11 @@ See the new "Custom Animation" section in the README for detailed usage and exam
 
 - Updated README.md
 - Updated example
+
+
+## [1.0.0]
+
+- Fixed: `displaySeconds` is now scoped locally per `show()` call — previously it mutated shared state, causing subsequent snacks to inherit the duration from the last call.
+- Renamed: `sneckInitializer` → `snackInitializer` in `OverlayWrapper` (typo fix, sorry).
+- Refactored `_AnimatedSnackBarContent` for cleaner variable extraction (`materialBackColor`, `padding`, `styleText`, `wrapperWidget`).
+- Replaced mutable `_displaySeconds` static field with `_defaultDisplaySeconds` constant.
