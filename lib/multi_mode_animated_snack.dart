@@ -68,22 +68,23 @@ final class SlideYWrapper implements AnimatedWrapperInterface {
 ///
 /// [child] — the main content of the app.
 ///
-/// [sneckInitializer] — a callback that provides the [BuildContext] required for snack initialization.
+/// [snackInitializer] — a callback that provides the [BuildContext] required for snack initialization.
 final class OverlayWrapper extends StatelessWidget {
   const OverlayWrapper({
     super.key,
     required this.child,
-    required this.sneckInitializer,
+    required this.snackInitializer,
   });
   final Widget? child;
-  final Function(BuildContext context) sneckInitializer;
+  final Function(BuildContext context) snackInitializer;
+
   @override
   Widget build(BuildContext context) {
     return Overlay(
       initialEntries: [
         OverlayEntry(
           builder: (context) {
-            sneckInitializer(context);
+            snackInitializer(context);
             return child!;
           },
         ),
@@ -176,7 +177,7 @@ class AnimatedSnackBar {
 
   /// Default display time for snack bars (in seconds)
   /// If not dismissed manually, the snack bar will be removed after this time.
-  static int _displaySeconds = 5;
+  static const int _defaultDisplaySeconds = 5;
 
   /// Bottom padding value.
   static double _snackBottomPadding = 100;
@@ -258,8 +259,10 @@ class AnimatedSnackBar {
     Function()? deepLinkTransition,
     String? underliningPart,
   }) {
+    /// set display seconds
+    int localDisplaySeconds = displaySeconds ?? _defaultDisplaySeconds;
+
     /// Set default values for optional parameters
-    _displaySeconds = displaySeconds ?? _displaySeconds;
 
     /// A function to update the display duration of the snack bar.
     ///
@@ -270,10 +273,11 @@ class AnimatedSnackBar {
     ///
     final StreamController<int> _changeDisplayTimeController =
         StreamController<int>();
-    void Function(int value) _changeDisplaySeconds = (int value) {
-      _displaySeconds = displaySeconds ?? value;
 
-      _changeDisplayTimeController.add(_displaySeconds);
+    void Function(int value) _changeDisplaySeconds = (int value) {
+      localDisplaySeconds = displaySeconds ?? value;
+
+      _changeDisplayTimeController.add(localDisplaySeconds);
     };
 
     late final StreamSubscription<int> _timeStreamSubscription;
@@ -295,6 +299,7 @@ class AnimatedSnackBar {
     void _cleanup(OverlayEntry overlayEntry) {
       if (_snackBars.contains(overlayEntry)) {
         _snackBars.remove(overlayEntry);
+
         overlayEntry.remove();
       }
       _timeStreamSubscription.cancel();
@@ -335,7 +340,7 @@ class AnimatedSnackBar {
                         : SlideYWrapper()
                     : null),
             displaySecondsFunc: _changeDisplaySeconds,
-            displaySeconds: _displaySeconds,
+            displaySeconds: localDisplaySeconds,
             underliningLineColor: underlineColor,
             borderRadius: borderRadius,
             deepLinkTransition: deepLinkTransition,
@@ -354,7 +359,7 @@ class AnimatedSnackBar {
                   ConfigMode.common => _configModeMap[configMode] ??
                       _CommonSnackBarConfig(
                         elevation: elevation,
-                        displaySeconds: _displaySeconds,
+                        displaySeconds: localDisplaySeconds,
                         borderRadius: borderRadius,
                         message: message,
                         backgroundColor: backgroundColor,
@@ -368,7 +373,7 @@ class AnimatedSnackBar {
                   ConfigMode.success => _configModeMap[configMode] ??
                       _SuccessSnackBarConfig(
                           elevation: elevation,
-                          displaySeconds: _displaySeconds,
+                          displaySeconds: localDisplaySeconds,
                           borderRadius: borderRadius,
                           message: message,
                           underliningPart: underliningPart,
@@ -380,7 +385,7 @@ class AnimatedSnackBar {
                   ConfigMode.warning => _configModeMap[configMode] ??
                       _WarningSnackBarConfig(
                           elevation: elevation,
-                          displaySeconds: _displaySeconds,
+                          displaySeconds: localDisplaySeconds,
                           borderRadius: borderRadius,
                           message: message,
                           underliningPart: underliningPart,
@@ -392,7 +397,7 @@ class AnimatedSnackBar {
                   ConfigMode.error => _configModeMap[configMode] ??
                       _ErrorSnackBarConfig(
                         elevation: elevation,
-                        displaySeconds: _displaySeconds,
+                        displaySeconds: localDisplaySeconds,
                         borderRadius: borderRadius,
                         message: message,
                         underliningPart: underliningPart,
@@ -480,31 +485,39 @@ class _AnimatedSnackBarContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMinus = appearanceMode == AppearanceMode.top;
-    displaySecondsFunc(config.displaySeconds ?? displaySeconds ?? 5);
     final displayTime = ((config.displaySeconds ?? displaySeconds ?? 5) - 2);
 
-    return (animatedWrapper ??
-            config.animatedWrapper ??
-            (config.animateConfig == AnimateConfig.slideYJump
-                ? SlideYJumpWrapper()
-                : SlideYWrapper()))
-        .animateWidget(
+    final materialBackColor = backgroundColor ??
+        config.backgroundColor ??
+        Colors.black.withValues(alpha: 0.96);
+
+    final padding = contentPadding ??
+        (config.contentPadding == null || config.contentPadding! < 0
+            ? 0
+            : config.contentPadding!);
+
+    final styleText = textStyle ??
+        config.textStyle ??
+        TextStyle(color: textColor ?? config.textColor ?? Colors.white);
+
+    final wrapperWidget = (animatedWrapper ??
+        config.animatedWrapper ??
+        (config.animateConfig == AnimateConfig.slideYJump
+            ? SlideYJumpWrapper()
+            : SlideYWrapper()));
+
+    displaySecondsFunc(config.displaySeconds ?? displaySeconds ?? 5);
+
+    return wrapperWidget.animateWidget(
       isMinus,
       displayTime,
       child: Material(
         borderRadius:
             BorderRadius.circular(borderRadius ?? config.borderRadius ?? 5),
         elevation: elevation ?? config.elevation ?? 0.0,
-        color: backgroundColor ??
-            config.backgroundColor ??
-            Colors.black.withValues(alpha: 0.96),
+        color: materialBackColor,
         child: Padding(
-          padding: EdgeInsets.all(
-            contentPadding ??
-                (config.contentPadding == null || config.contentPadding! < 0
-                    ? 0
-                    : config.contentPadding!),
-          ),
+          padding: EdgeInsets.all(padding),
           child: TextButton(
             onPressed: deepLinkTransition ?? config.deepLinkTransition,
             child: content ??
@@ -515,12 +528,7 @@ class _AnimatedSnackBarContent extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '${message ?? config.message ?? ''} ',
-                        style: textStyle ??
-                            config.textStyle ??
-                            TextStyle(
-                                color: textColor ??
-                                    config.textColor ??
-                                    Colors.white),
+                        style: styleText,
                       ),
                       if (content == null)
                         TextSpan(

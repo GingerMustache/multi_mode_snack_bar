@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       builder: (context, child) => OverlayWrapper(
-        sneckInitializer: (context) => AnimatedSnackBar.initialize(
+        snackInitializer: (context) => AnimatedSnackBar.initialize(
           context,
           snackTopPadding: 40,
           appearanceMode: AppearanceMode.top,
